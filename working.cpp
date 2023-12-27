@@ -367,14 +367,7 @@ void askNValueConfirmation()
 }
 
 volatile bool motorActive = false; // This flag controls the state of the motor loop.
-void checkForImmediateStop()
-{
-    char key = keypad.getKey();
-    if (key == '*')
-    {
-        stopEverything();
-    }
-}
+
 void startMotorSequence()
 {
     motorActive = true;
@@ -417,12 +410,7 @@ void startMotorSequence()
             lcd.print(" done");
         }
 
-        // After each operation, check if the motor is still running
-        while (!isMotorRunning)
-        {
-            delay(10);               // Wait for a short period to prevent tightly locked loop
-            checkForImmediateStop(); // Check for immediate stop request
-        }
+
     }
 
     // After 4 loops, go reverse until it touches Limit Switch 2

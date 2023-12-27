@@ -152,36 +152,41 @@ void loop()
 }
 void checkMotorDirection()
 {
-    lcd.clear();
-    lcd.print("Select direction");
+  lcd.clear();
+  lcd.print("Select direction");
+
+  bool directionSelected = false; // Need this flag to exit the loop once direction is selected
+  
+  while(!directionSelected) {
     char key = keypad.getKey();
+    if (key) { // Check if a key is pressed
+      switch (key) {
+      case 'F': // If LEFT button is pressed
+        motorForwardForShortDuration();
+        directionSelected = true;
+        break;
+        
+      case 'G': // If RIGHT button is pressed
+        motorReverseUntilLimitSwitch2();
+        directionSelected = true;
+        break;
 
-    if (key)
-    { // Check if a key is pressed
-        switch (key)
-        {
-        case 'F': // If LEFT button is pressed
-            motorReverseUntilLimitSwitch2();
-            break;
+      case '*': // If * button is pressed, skip direction check
+        directionConfirmed = true;
+        // Proceed to fetch N value
+        fetchNValue();
+        directionSelected = true;
+        break;
 
-        case 'G': // If RIGHT button is pressed
-            motorForwardForShortDuration();
-            break;
-
-        case '*': // If * button is pressed, skip direction check
-            directionConfirmed = true;
-            // Proceed to fetch N value
-            fetchNValue();
-            break;
-
-            // Add additional cases for other keys as needed
-
-        default:
-            // Do nothing if any other key is pressed
-            break;
-        }
+      default:
+        // Do nothing if any other key is pressed
+        break;
+      }
+      delay(100); // Wait a bit before checking again for key press, to avoid bouncing
     }
+  }
 }
+
 
 void motorReverseUntilLimitSwitch2()
 {

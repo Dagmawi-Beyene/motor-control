@@ -50,6 +50,8 @@ int N = 0;
 int limitSwitch2Count = 0;
 const int limitswitch1InterruptPin = 2; // The pin number for Limit Switch 1 should match the signal pin connected to it.
 volatile bool isMotorRunning = false;
+volatile bool motorActive = false; // This flag controls the state of the motor loop.
+
 
 // Function prototypes
 void startMotorSequence();
@@ -384,7 +386,6 @@ void askNValueConfirmation()
     }
 }
 
-volatile bool motorActive = false; // This flag controls the state of the motor loop.
 
 void startMotorSequence()
 {

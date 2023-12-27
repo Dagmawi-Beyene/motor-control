@@ -326,7 +326,7 @@ void askNValueConfirmation()
     lcd.print("N is ");
     lcd.print(N);
     lcd.setCursor(0, 1);
-    lcd.print("Correct? F1-Yes F2-No");
+    lcd.print("F1-Yes F2-No");
 
     bool confirmation = false;
     while (!confirmation)
@@ -345,7 +345,7 @@ void askNValueConfirmation()
                 // No longer call startMotorSequence() here
                 // Proceed to other logic
             }
-            else if (key == 'B')
+            else if (key == 'B' || key == 'E')
             {
                 // The user has rejected the N value. Prompt for a new value.
                 fetchNValue();
@@ -412,8 +412,9 @@ void startMotorSequence()
     }
 
     // After 4 loops, go reverse until it touches Limit Switch 2
-    if (motorActive)
+    if (motorActive && loopCount == 4)
     {
+        char key = keypad.getKey();
         lcd.clear();
         lcd.print("Relay pin off");
         digitalWrite(relayPin, HIGH);
@@ -421,6 +422,13 @@ void startMotorSequence()
         lcd.print("Reversing");
         digitalWrite(motorPin1, LOW);
         digitalWrite(motorPin2, HIGH);
+
+        while (key != '*')
+        {
+            key = keypad.getKey();
+            delay(20);
+            stopOrResetIfNeeded(); // check if * is pressed
+        }
 
         while (digitalRead(limitswitch2) != LOW)
         {
@@ -457,13 +465,12 @@ void stopEverything()
     while (key != '*')
     {
         key = keypad.getKey(); // This line will keep checking the keypad for '*' key to be pressed
-        delay(20); // Adding a small delay to avoid bouncing effect and to give system some time for other tasks
+        delay(20);             // Adding a small delay to avoid bouncing effect and to give system some time for other tasks
     }
 
     resetArduino(); // Resets the system to initial state
     isMotorRunning = false;
 }
-
 
 void resetArduino()
 {

@@ -470,6 +470,9 @@ void resetArduino()
     limitSwitch2Count = 0;
     motorActive = false; // Ensure motor is not in a running state
     nValueSet = false;   // Reset the N value set flag
+    digitalWrite(motorPin1, LOW);
+    digitalWrite(motorPin2, LOW); // Stop the motor
+    digitalWrite(relayPin, HIGH); // Turn the relay off (assuming active LOW)
     lcd.clear();
     lcd.print("System Reset!");
     delay(1000); // Wait for 1 second

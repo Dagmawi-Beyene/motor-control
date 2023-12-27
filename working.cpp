@@ -97,7 +97,7 @@ void limitSwitch1InterruptHandler()
         digitalWrite(motorPin1, LOW);
         // digitalWrite(motorPin2, LOW);
 
-        // lcd.print("big motor off");
+        lcd.print("big motor off");
     }
 }
 

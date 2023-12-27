@@ -89,8 +89,6 @@ void setup()
 
 void limitSwitch1InterruptHandler()
 {
-    char key = keypad.getKey();
-
     delay(100); // Simple debouncing
     if (digitalRead(limitswitch1) == LOW)
     {
@@ -100,10 +98,6 @@ void limitSwitch1InterruptHandler()
         // digitalWrite(motorPin2, LOW);
 
         // lcd.print("big motor off");
-    }
-    if (key == '#')
-    {
-        stopEverything();
     }
 }
 
@@ -340,7 +334,7 @@ void askNValueConfirmation()
         char key = keypad.getKey();
         if (key)
         { // if a key is pressed
-            if (key == 'A' || key == 'H')
+            if (key == 'A')
             {
                 nValueSet = true;
                 lcd.clear();
@@ -400,7 +394,12 @@ void startMotorSequence()
             }
 
             // Forward loop operation
-            delay(motorDelayTime);
+            const int checkInterval = 100; // check every 100 ms
+            for (int i = 0; i < motorDelayTime; i += checkInterval)
+            {
+                delay(checkInterval);
+                stopOrResetIfNeeded(); // check if * is pressed
+            }
             while (!isMotorRunning)
             {
                 delay(10);             // Wait for a short period to prevent tightly locked loop
@@ -408,7 +407,11 @@ void startMotorSequence()
             }
             digitalWrite(motorPin1, HIGH);
             digitalWrite(motorPin2, LOW);
-            delay(3000);
+            for (int i = 0; i < 3000; i += checkInterval)
+            {
+                delay(checkInterval);
+                stopOrResetIfNeeded(); // check if * is pressed
+            }
             digitalWrite(motorPin1, LOW);
             digitalWrite(motorPin2, LOW);
 

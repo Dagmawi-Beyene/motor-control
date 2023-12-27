@@ -403,7 +403,6 @@ void startMotorSequence()
 
             // Forward loop operation
             delay(motorDelayTime);
-            while (!isMotorRunning)
             checkForImmediateStop(); // <--- HERE
 
             digitalWrite(motorPin1, HIGH);

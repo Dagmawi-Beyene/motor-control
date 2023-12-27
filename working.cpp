@@ -424,11 +424,9 @@ void startMotorSequence()
         digitalWrite(motorPin1, LOW);
         digitalWrite(motorPin2, HIGH);
 
-        while (key != '*' || digitalRead(limitswitch2) != LOW)
+        while (digitalRead(limitswitch2) != LOW)
         {
-            key = keypad.getKey();
-            delay(20);
-            stopOrResetIfNeeded(); // check if * is pressed
+
         }
 
         digitalWrite(motorPin1, LOW);

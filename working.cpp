@@ -52,7 +52,6 @@ const int limitswitch1InterruptPin = 2; // The pin number for Limit Switch 1 sho
 volatile bool isMotorRunning = false;
 volatile bool motorActive = false; // This flag controls the state of the motor loop.
 
-
 // Function prototypes
 void startMotorSequence();
 void checkMotorDirection();
@@ -165,7 +164,8 @@ void stopOrResetIfNeeded()
         {
 
         case '*':
-            resetArduino();
+            lcd.clear();
+            lcd.print("Wait for reset");
             break;
 
         case '#':
@@ -431,7 +431,6 @@ void startMotorSequence()
             stopOrResetIfNeeded(); // check if * is pressed
         }
 
- 
         digitalWrite(motorPin1, LOW);
         digitalWrite(motorPin2, LOW);
 
@@ -488,8 +487,8 @@ void resetArduino()
     lcd.clear();
 
     // Call the initial functions again to start over
-    checkMotorDirection(); // Optionally call the direction function if that's the intended reset behaviour
-    fetchNValue();         // Comment this out if you want to start with motor direction after reset
+    // checkMotorDirection(); // Optionally call the direction function if that's the intended reset behaviour
+    // fetchNValue();         // Comment this out if you want to start with motor direction after reset
     isMotorRunning = false;
 }
 

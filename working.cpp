@@ -50,8 +50,6 @@ int N = 0;
 int limitSwitch2Count = 0;
 const int limitswitch1InterruptPin = 2; // The pin number for Limit Switch 1 should match the signal pin connected to it.
 volatile bool isMotorRunning = false;
-volatile bool motorActive = false; // This flag controls the state of the motor loop.
-
 
 // Function prototypes
 void startMotorSequence();
@@ -91,6 +89,8 @@ void setup()
 
 void limitSwitch1InterruptHandler()
 {
+    char key = keypad.getKey();
+
     delay(100); // Simple debouncing
     if (digitalRead(limitswitch1) == LOW)
     {
@@ -100,6 +100,11 @@ void limitSwitch1InterruptHandler()
         // digitalWrite(motorPin2, LOW);
 
         // lcd.print("big motor off");
+    }
+
+    if (key == '#')
+    {
+        stopEverything();
     }
 }
 
@@ -159,74 +164,45 @@ void stopOrResetIfNeeded()
 {
     char key = keypad.getKey();
     if (key)
-    {
+    { // if a key is pressed
+
         switch (key)
         {
+
         case '*':
             resetArduino();
             break;
+
         case '#':
             stopEverything();
             break;
-        }
-    }
-}
 
-void stopOrContinueIfNeeded()
-{
-    char key = keypad.getKey();
-    if (key)
-    {
-        switch (key)
-        {
-        case '*':
-            isMotorRunning = true;
-            // Can add additional actions on continue, if necessary
-            break;
-        case '#':
-            // Ignore additional presses of '#'
-            break;
+            // other keys if necessary...
         }
-    }
-}
-
-void checkForImmediateStop()
-{
-    char key = keypad.getKey();
-    if (key == '#')
-    {
-        stopEverything();
     }
 }
 
 void loop()
 {
-
-    while (motorActive)
+    if (!nValueSet)
     {
-        stopOrResetIfNeeded();
-        // Additional original loop code goes here...
+        fetchNValue();
+        lcd.clear();
+        lcd.print("limit switch 1");
+    }
+    else if (nValueSet)
+    {
 
-        if (!nValueSet)
-        {
-            fetchNValue();
-            lcd.clear();
-            lcd.print("limit switch 1");
-        }
-        else if (nValueSet)
-        {
+        // Check if Limit Switch 1 is pressed to start the motor sequence
+        if (digitalRead(limitswitch1) == LOW)
+        { // Assuming LOW when pressed
+            // Debounce the limit switch
+            delay(50);
 
-            // Check if Limit Switch 1 is pressed to start the motor sequence
             if (digitalRead(limitswitch1) == LOW)
-            { // Assuming LOW when pressed
-                // Debounce the limit switch
-                delay(50);
-
-                if (digitalRead(limitswitch1) == LOW)
-                {
-                    isMotorRunning = true;
-                    startMotorSequence();
-                }
+            {
+                isMotorRunning = true;
+                startMotorSequence();
             }
         }
     }
@@ -386,7 +362,15 @@ void askNValueConfirmation()
     }
 }
 
-
+volatile bool motorActive = false; // This flag controls the state of the motor loop.
+void checkForImmediateStop()
+{
+    char key = keypad.getKey();
+    if (key == '*')
+    {
+        stopEverything();
+    }
+}
 void startMotorSequence()
 {
     motorActive = true;
@@ -415,6 +399,7 @@ void startMotorSequence()
                 delay(10);             // Wait for a short period to prevent tightly locked loop
                 stopOrResetIfNeeded(); // <--- HERE
             }
+
             // Forward loop operation
             delay(motorDelayTime);
             while (!isMotorRunning)
@@ -422,7 +407,6 @@ void startMotorSequence()
                 delay(10);             // Wait for a short period to prevent tightly locked loop
                 stopOrResetIfNeeded(); // <--- HERE
             }
-
             digitalWrite(motorPin1, HIGH);
             digitalWrite(motorPin2, LOW);
             delay(3000);
@@ -433,6 +417,13 @@ void startMotorSequence()
             lcd.print("Loop ");
             lcd.print(loopCount + 1);
             lcd.print(" done");
+        }
+
+        // After each operation, check if the motor is still running
+        while (!isMotorRunning)
+        {
+            delay(10);               // Wait for a short period to prevent tightly locked loop
+            checkForImmediateStop(); // Check for immediate stop request
         }
     }
 
@@ -467,11 +458,6 @@ void startMotorSequence()
 
 void stopEverything()
 {
-    while (!isMotorRunning)
-    {
-        stopOrContinueIfNeeded();
-        delay(50); // Add some delay to prevent loop from running too fast
-    }
     // Stop all operations
     // This function could be called during an emergency stop or a stop command from the user.
     digitalWrite(motorPin1, LOW);

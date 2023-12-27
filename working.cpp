@@ -359,7 +359,7 @@ volatile bool motorActive = false; // This flag controls the state of the motor 
 void checkForImmediateStop()
 {
     char key = keypad.getKey();
-    if (key == '*')
+    if (key == '#')
     {
         stopEverything();
     }

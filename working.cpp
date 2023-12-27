@@ -258,8 +258,8 @@ void motorForwardForShortDuration()
 
 
     // Confirm direction and move to next step
-    // directionConfirmed = true;
-   // fetchNValue();
+    directionConfirmed = true;
+    fetchNValue();
 }
 
 void fetchNValue()

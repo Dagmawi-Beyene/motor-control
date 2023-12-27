@@ -387,23 +387,12 @@ void startMotorSequence()
             lcd.print("Motor is ON ");
             lcd.print(loopCount + 1);
 
-            while (!isMotorRunning)
-            {
-                delay(10);             // Wait for a short period to prevent tightly locked loop
-                stopOrResetIfNeeded(); // <--- HERE
-            }
-
             // Forward loop operation
             const int checkInterval = 100; // check every 100 ms
             for (int i = 0; i < motorDelayTime; i += checkInterval)
             {
                 delay(checkInterval);
                 stopOrResetIfNeeded(); // check if * is pressed
-            }
-            while (!isMotorRunning)
-            {
-                delay(10);             // Wait for a short period to prevent tightly locked loop
-                stopOrResetIfNeeded(); // <--- HERE
             }
             digitalWrite(motorPin1, HIGH);
             digitalWrite(motorPin2, LOW);
@@ -419,13 +408,6 @@ void startMotorSequence()
             lcd.print("Loop ");
             lcd.print(loopCount + 1);
             lcd.print(" done");
-        }
-
-        // After each operation, check if the motor is still running
-        while (!isMotorRunning)
-        {
-            delay(10);               // Wait for a short period to prevent tightly locked loop
-            checkForImmediateStop(); // Check for immediate stop request
         }
     }
 

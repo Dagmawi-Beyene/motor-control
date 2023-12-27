@@ -162,11 +162,17 @@ void checkMotorDirection()
     if (key) { // Check if a key is pressed
       switch (key) {
       case 'F': // If LEFT button is pressed
+        // print the direction on the LCD
+        lcd.clear();
+        lcd.print("Direction: LEFT");
         motorForwardForShortDuration();
         directionSelected = true;
         break;
         
       case 'G': // If RIGHT button is pressed
+        // print the direction on the LCD
+        lcd.clear();
+        lcd.print("Direction: RIGHT");
         motorReverseUntilLimitSwitch2();
         directionSelected = true;
         break;

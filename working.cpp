@@ -485,8 +485,8 @@ void resetArduino()
     lcd.clear();
 
     // Call the initial functions again to start over
-    // checkMotorDirection(); // Optionally call the direction function if that's the intended reset behaviour
-    // fetchNValue();         // Comment this out if you want to start with motor direction after reset
+    checkMotorDirection(); // Optionally call the direction function if that's the intended reset behaviour
+    fetchNValue();         // Comment this out if you want to start with motor direction after reset
     isMotorRunning = false;
 }
 

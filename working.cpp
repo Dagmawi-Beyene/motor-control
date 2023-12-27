@@ -63,17 +63,6 @@ bool directionConfirmed = false;
 // int N = 0;              // Global variable to store the N value
 bool nValueSet = false; // Global flag to determine if N has been set
 
-void testKeypad()
-{
-    char key = keypad.getKey();
-    if (key)
-    {
-        lcd.clear();
-        lcd.print("Key Pressed: ");
-        lcd.print(key);
-    }
-}
-
 void setup()
 {
     // Initialize the LCD
@@ -136,30 +125,28 @@ void stopOrResetIfNeeded()
 
 void loop()
 {
-    testKeypad();
+    if (!nValueSet)
+    {
+        fetchNValue();
+        lcd.clear();
+        lcd.print("limit switch 1");
+    }
+    else if (nValueSet)
+    {
 
-    // if (!nValueSet)
-    // {
-    //     fetchNValue();
-    //     lcd.clear();
-    //     lcd.print("limit switch 1");
-    // }
-    // else if (nValueSet)
-    // {
+        // Check if Limit Switch 1 is pressed to start the motor sequence
+        if (digitalRead(limitswitch1) == LOW)
+        { // Assuming LOW when pressed
+            // Debounce the limit switch
+            delay(50);
 
-    //     // Check if Limit Switch 1 is pressed to start the motor sequence
-    //     if (digitalRead(limitswitch1) == LOW)
-    //     { // Assuming LOW when pressed
-    //         // Debounce the limit switch
-    //         delay(50);
-
-    //         if (digitalRead(limitswitch1) == LOW)
-    //         {
-    //             isMotorRunning = true;
-    //             startMotorSequence();
-    //         }
-    //     }
-    // }
+            if (digitalRead(limitswitch1) == LOW)
+            {
+                isMotorRunning = true;
+                startMotorSequence();
+            }
+        }
+    }
 
     // All main logic is handled within sub-functions
 }

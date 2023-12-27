@@ -285,9 +285,19 @@ void fetchNValue()
                     lcd.print(N);             // Display current value of N
                 }
             }
+            else if(key == 'C'){
+                // Go back to previous prompt which is "checkMotorDirection()"
+                checkMotorDirection();
+                return;
+            }
+            else if(key == 'D'){
+                // Skip the current function and keep going
+                enterPressed = true;
+            }
             else if (key == 'H')
             {
-                enterPressed = true; // The user has finished entering the value
+                // The user has confirmed the N value
+                enterPressed = true;
             }
         }
         // Add necessary delay if key debouncing is required
@@ -296,6 +306,7 @@ void fetchNValue()
     // Confirm the entered N value
     askNValueConfirmation();
 }
+
 
 void askNValueConfirmation()
 {

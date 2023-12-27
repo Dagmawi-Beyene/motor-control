@@ -174,6 +174,13 @@ void stopOrResetIfNeeded()
     }
 }
 
+void checkForImmediateStop() {
+    char key = keypad.getKey();
+    if (key == '#') {
+        stopEverything();
+    }
+}
+
 void loop()
 {
     if (!nValueSet)
@@ -385,7 +392,6 @@ void startMotorSequence()
                 delay(10);             // Wait for a short period to prevent tightly locked loop
                 stopOrResetIfNeeded(); // <--- HERE
             }
-
             // Forward loop operation
             delay(motorDelayTime);
             while (!isMotorRunning)
@@ -393,6 +399,7 @@ void startMotorSequence()
                 delay(10);             // Wait for a short period to prevent tightly locked loop
                 stopOrResetIfNeeded(); // <--- HERE
             }
+
             digitalWrite(motorPin1, HIGH);
             digitalWrite(motorPin2, LOW);
             delay(3000);

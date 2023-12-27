@@ -453,13 +453,17 @@ void stopEverything()
 
     lcd.clear();
     lcd.print("All stopped!"); // Notify the user
+
     while (key != '*')
     {
-        // Waiting for Limit Switch 2 to be triggered
-    }               // Wait for 1 second
+        key = keypad.getKey(); // This line will keep checking the keypad for '*' key to be pressed
+        delay(20); // Adding a small delay to avoid bouncing effect and to give system some time for other tasks
+    }
+
     resetArduino(); // Resets the system to initial state
     isMotorRunning = false;
 }
+
 
 void resetArduino()
 {

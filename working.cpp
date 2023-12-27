@@ -97,10 +97,53 @@ void limitSwitch1InterruptHandler()
         digitalWrite(motorPin1, LOW);
         // digitalWrite(motorPin2, LOW);
 
-        lcd.print("big motor off");
+        //lcd.print("big motor off");
     }
 }
 
+
+void checkMotorDirection()
+{
+  lcd.clear();
+  lcd.print("Select direction");
+
+  bool directionSelected = false; // Need this flag to exit the loop once direction is selected
+  
+  while(!directionSelected) {
+    char key = keypad.getKey();
+    if (key) { // Check if a key is pressed
+      switch (key) {
+      case 'F': // If LEFT button is pressed
+        // print the direction on the LCD
+        lcd.clear();
+        lcd.print("Direction: LEFT");
+        motorForwardForShortDuration();
+        directionSelected = true;
+        break;
+        
+      case 'G': // If RIGHT button is pressed
+        // print the direction on the LCD
+        lcd.clear();
+        lcd.print("Direction: RIGHT");
+        motorReverseUntilLimitSwitch2();
+        directionSelected = true;
+        break;
+
+      case '*': // If * button is pressed, skip direction check
+        directionConfirmed = true;
+        // Proceed to fetch N value
+        fetchNValue();
+        directionSelected = true;
+        break;
+
+      default:
+        // Do nothing if any other key is pressed
+        break;
+      }
+      delay(100); // Wait a bit before checking again for key press, to avoid bouncing
+    }
+  }
+}
 void stopOrResetIfNeeded()
 {
     char key = keypad.getKey();
@@ -150,49 +193,6 @@ void loop()
 
     // All main logic is handled within sub-functions
 }
-void checkMotorDirection()
-{
-  lcd.clear();
-  lcd.print("Select direction");
-
-  bool directionSelected = false; // Need this flag to exit the loop once direction is selected
-  
-  while(!directionSelected) {
-    char key = keypad.getKey();
-    if (key) { // Check if a key is pressed
-      switch (key) {
-      case 'F': // If LEFT button is pressed
-        // print the direction on the LCD
-        lcd.clear();
-        lcd.print("Direction: LEFT");
-        motorForwardForShortDuration();
-        directionSelected = true;
-        break;
-        
-      case 'G': // If RIGHT button is pressed
-        // print the direction on the LCD
-        lcd.clear();
-        lcd.print("Direction: RIGHT");
-        motorReverseUntilLimitSwitch2();
-        directionSelected = true;
-        break;
-
-      case '*': // If * button is pressed, skip direction check
-        directionConfirmed = true;
-        // Proceed to fetch N value
-        fetchNValue();
-        directionSelected = true;
-        break;
-
-      default:
-        // Do nothing if any other key is pressed
-        break;
-      }
-      delay(100); // Wait a bit before checking again for key press, to avoid bouncing
-    }
-  }
-}
-
 
 void motorReverseUntilLimitSwitch2()
 {
@@ -246,7 +246,7 @@ void motorForwardForShortDuration()
     digitalWrite(motorPin1, HIGH);
     digitalWrite(motorPin2, LOW);
 
-    delay(200); // Wait for 0.2 seconds
+    delay(2000); // Wait for 0.2 seconds
 
     // Stop motor
     digitalWrite(motorPin1, LOW);
@@ -254,10 +254,12 @@ void motorForwardForShortDuration()
 
     lcd.clear();
     lcd.print("Motor stopped");
+    delay(200);                   // Wait for 0.2 seconds
+
 
     // Confirm direction and move to next step
-    directionConfirmed = true;
-    fetchNValue();
+    // directionConfirmed = true;
+   // fetchNValue();
 }
 
 void fetchNValue()

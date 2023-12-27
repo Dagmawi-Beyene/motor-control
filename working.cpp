@@ -174,14 +174,6 @@ void stopOrResetIfNeeded()
     }
 }
 
-void checkForImmediateStop() {
-    char key = keypad.getKey();
-    if (key == '#') {
-        stopEverything();
-    }
-}
-
-
 void loop()
 {
     if (!nValueSet)
@@ -192,8 +184,6 @@ void loop()
     }
     else if (nValueSet)
     {
-        // Check the immediate stop or reset commands here
-        checkForImmediateStop();
 
         // Check if Limit Switch 1 is pressed to start the motor sequence
         if (digitalRead(limitswitch1) == LOW)
@@ -209,9 +199,8 @@ void loop()
         }
     }
 
-     // All main logic is handled within sub-functions
+    // All main logic is handled within sub-functions
 }
-
 
 void motorReverseUntilLimitSwitch2()
 {
@@ -398,14 +387,19 @@ void startMotorSequence()
             lcd.print("Motor is ON ");
             lcd.print(loopCount + 1);
 
-            checkForImmediateStop(); // <--- HERE
-
+            while (!isMotorRunning)
+            {
+                delay(10);             // Wait for a short period to prevent tightly locked loop
+                stopOrResetIfNeeded(); // <--- HERE
+            }
 
             // Forward loop operation
             delay(motorDelayTime);
             while (!isMotorRunning)
-            checkForImmediateStop(); // <--- HERE
-
+            {
+                delay(10);             // Wait for a short period to prevent tightly locked loop
+                stopOrResetIfNeeded(); // <--- HERE
+            }
             digitalWrite(motorPin1, HIGH);
             digitalWrite(motorPin2, LOW);
             delay(3000);
@@ -466,7 +460,9 @@ void stopEverything()
     motorActive = false; // Update motorActive flag to stop the loop operation
 
     lcd.clear();
-    lcd.print("All stopped!"); // Notify the user// Resets the system to initial state
+    lcd.print("All stopped!"); // Notify the user
+    delay(1000);               // Wait for 1 second
+    resetArduino();            // Resets the system to initial state
     isMotorRunning = false;
 }
 

@@ -439,6 +439,12 @@ void startMotorSequence()
         lcd.setCursor(0, 1);
         lcd.print("LS2 Count: ");
         lcd.print(limitSwitch2Count);
+        while (key != '*')
+        {
+            key = keypad.getKey();
+            delay(20);
+        }
+        resetArduino();
     }
 }
 

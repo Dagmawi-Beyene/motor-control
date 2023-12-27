@@ -113,18 +113,18 @@ void checkMotorDirection()
     char key = keypad.getKey();
     if (key) { // Check if a key is pressed
       switch (key) {
-      case 'F': // If LEFT button is pressed
+      case 'G': // If LEFT button is pressed
         // print the direction on the LCD
         lcd.clear();
-        lcd.print("Direction: LEFT");
+        lcd.print("Direction: Right");
         motorForwardForShortDuration();
         directionSelected = true;
         break;
         
-      case 'G': // If RIGHT button is pressed
+      case 'F': // If RIGHT button is pressed
         // print the direction on the LCD
         lcd.clear();
-        lcd.print("Direction: RIGHT");
+        lcd.print("Direction: Left");
         motorReverseUntilLimitSwitch2();
         directionSelected = true;
         break;

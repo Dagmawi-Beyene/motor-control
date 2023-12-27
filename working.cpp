@@ -334,7 +334,7 @@ void askNValueConfirmation()
         char key = keypad.getKey();
         if (key)
         { // if a key is pressed
-            if (key == 'A')
+            if (key == 'A' || key == 'H')
             {
                 nValueSet = true;
                 lcd.clear();
@@ -442,6 +442,7 @@ void startMotorSequence()
 
 void stopEverything()
 {
+    char key = keypad.getKey();
     // Stop all operations
     // This function could be called during an emergency stop or a stop command from the user.
     digitalWrite(motorPin1, LOW);
@@ -452,8 +453,11 @@ void stopEverything()
 
     lcd.clear();
     lcd.print("All stopped!"); // Notify the user
-    delay(1000);               // Wait for 1 second
-    resetArduino();            // Resets the system to initial state
+    while (key == '*')
+    {
+        // Waiting for Limit Switch 2 to be triggered
+    }               // Wait for 1 second
+    resetArduino(); // Resets the system to initial state
     isMotorRunning = false;
 }
 

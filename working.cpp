@@ -89,8 +89,6 @@ void setup()
 
 void limitSwitch1InterruptHandler()
 {
-    char key = keypad.getKey();
-
     delay(100); // Simple debouncing
     if (digitalRead(limitswitch1) == LOW)
     {
@@ -100,11 +98,6 @@ void limitSwitch1InterruptHandler()
         // digitalWrite(motorPin2, LOW);
 
         // lcd.print("big motor off");
-    }
-
-    if (key == '#')
-    {
-        stopEverything();
     }
 }
 
@@ -341,7 +334,7 @@ void askNValueConfirmation()
         char key = keypad.getKey();
         if (key)
         { // if a key is pressed
-            if (key == 'A')
+            if (key == 'A' || key == 'H')
             {
                 nValueSet = true;
                 lcd.clear();

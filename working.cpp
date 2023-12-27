@@ -426,7 +426,6 @@ void startMotorSequence()
 
         while (digitalRead(limitswitch2) != LOW)
         {
-
         }
 
         digitalWrite(motorPin1, LOW);
@@ -476,6 +475,7 @@ void resetArduino()
     limitSwitch2Count = 0;
     motorActive = false; // Ensure motor is not in a running state
     nValueSet = false;   // Reset the N value set flag
+    isMotorRunning = false;
     digitalWrite(motorPin1, LOW);
     digitalWrite(motorPin2, LOW); // Stop the motor
     digitalWrite(relayPin, HIGH); // Turn the relay off (assuming active LOW)
@@ -487,7 +487,6 @@ void resetArduino()
     // Call the initial functions again to start over
     checkMotorDirection(); // Optionally call the direction function if that's the intended reset behaviour
     fetchNValue();         // Comment this out if you want to start with motor direction after reset
-    isMotorRunning = false;
 }
 
 // Add other necessary functions ...

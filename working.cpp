@@ -217,11 +217,14 @@ void motorReverseUntilLimitSwitch2()
     digitalWrite(motorPin1, LOW);
     digitalWrite(motorPin2, LOW); // Stop motor
     limitSwitch2Count++;
+    lcd.clear();
+    lcd.print("Motor Forward");
+
 
     // Move motor forward for 0.2 seconds
     digitalWrite(motorPin1, HIGH);
     digitalWrite(motorPin2, LOW); // Forward direction
-    delay(200);                   // Wait for 0.2 seconds
+    delay(2000);                   // Wait for 0.2 seconds
 
     digitalWrite(motorPin1, LOW);
     digitalWrite(motorPin2, LOW); // Stop motor

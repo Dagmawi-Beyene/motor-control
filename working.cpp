@@ -129,6 +129,14 @@ void checkMotorDirection()
         directionSelected = true;
         break;
 
+
+      case 'D': // If DOWN button is pressed
+      case 'E': // If ESCAPE button is pressed
+        directionConfirmed = true;
+        fetchNValue();
+        directionSelected = true;
+        break;
+
       case '*': // If * button is pressed, skip direction check
         directionConfirmed = true;
         // Proceed to fetch N value

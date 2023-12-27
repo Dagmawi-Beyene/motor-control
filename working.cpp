@@ -453,7 +453,7 @@ void stopEverything()
 
     lcd.clear();
     lcd.print("All stopped!"); // Notify the user
-    while (key == '*')
+    while (key != '*')
     {
         // Waiting for Limit Switch 2 to be triggered
     }               // Wait for 1 second

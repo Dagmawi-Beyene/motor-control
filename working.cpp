@@ -385,69 +385,57 @@ void checkForImmediateStop()
 }
 void startMotorSequence()
 {
-    // Interrupts
-    unsigned long startMillis;
-    unsigned long currentMillis;
-    const unsigned long period = 5000; // 5 seconds, change to the required period.
     motorActive = true;
     isMotorRunning = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
-    startMillis = millis(); // initial start time
-
     for (loopCount = 0; isMotorRunning && loopCount < 4; loopCount++)
     {
-
-        currentMillis = millis();                  // save the current "time"
-        if (currentMillis - startMillis >= period) // test whether the period has elapsed
+        // Check if the motor is still running after each step
+        while (!isMotorRunning)
         {
-            // Check if the motor is still running after each step
-            while (!isMotorRunning || pause)
+            delay(10);             // Wait for a short period to prevent tightly locked loop
+            stopOrResetIfNeeded(); // <--- HERE
+        }
+
+        // Check again if motorActive is still true, since it might be changed by "stopEverything()"
+        if (motorActive)
+        {
+            digitalWrite(relayPin, LOW);
+            lcd.clear();
+            lcd.print("Motor is ON ");
+            lcd.print(loopCount + 1);
+
+            while (!isMotorRunning)
             {
                 delay(10);             // Wait for a short period to prevent tightly locked loop
                 stopOrResetIfNeeded(); // <--- HERE
             }
 
-            // Check again if motorActive is still true, since it might be changed by "stopEverything()"
-            if (motorActive)
+            // Forward loop operation
+            delay(motorDelayTime);
+            while (!isMotorRunning)
             {
-                digitalWrite(relayPin, LOW);
-                lcd.clear();
-                lcd.print("Motor is ON ");
-                lcd.print(loopCount + 1);
-
-                while (!isMotorRunning || pause)
-                {
-                    delay(10);             // Wait for a short period to prevent tightly locked loop
-                    stopOrResetIfNeeded(); // <--- HERE
-                }
-
-                // Forward loop operation
-                delay(motorDelayTime);
-                while (!isMotorRunning || pause)
-                {
-                    delay(10);             // Wait for a short period to prevent tightly locked loop
-                    stopOrResetIfNeeded(); // <--- HERE
-                }
-                digitalWrite(motorPin1, HIGH);
-                digitalWrite(motorPin2, LOW);
-                delay(3000);
-                digitalWrite(motorPin1, LOW);
-                digitalWrite(motorPin2, LOW);
-
-                lcd.clear();
-                lcd.print("Loop ");
-                lcd.print(loopCount + 1);
-                lcd.print(" done");
+                delay(10);             // Wait for a short period to prevent tightly locked loop
+                stopOrResetIfNeeded(); // <--- HERE
             }
+            digitalWrite(motorPin1, HIGH);
+            digitalWrite(motorPin2, LOW);
+            delay(3000);
+            digitalWrite(motorPin1, LOW);
+            digitalWrite(motorPin2, LOW);
 
-            // After each operation, check if the motor is still running
-            while (!isMotorRunning || pause)
-            {
-                delay(10);               // Wait for a short period to prevent tightly locked loop
-                checkForImmediateStop(); // Check for immediate stop request
-            }
-            startMillis = currentMillis; // save the "current" time
+            lcd.clear();
+            lcd.print("Loop ");
+            lcd.print(loopCount + 1);
+            lcd.print(" done");
+        }
+
+        // After each operation, check if the motor is still running
+        while (!isMotorRunning)
+        {
+            delay(10);               // Wait for a short period to prevent tightly locked loop
+            checkForImmediateStop(); // Check for immediate stop request
         }
     }
     // After 4 loops, go reverse until it touches Limit Switch 2

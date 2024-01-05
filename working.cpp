@@ -52,6 +52,7 @@ const int limitswitch1InterruptPin = 2; // The pin number for Limit Switch 1 sho
 volatile bool isMotorRunning = false;
 volatile bool motorActive = false; // This flag controls the state of the motor loop.
 volatile bool restartMotorSequence = false;
+bool motorWasActiveWhenPaused = false;
 
 // Function prototypes
 void startMotorSequence();
@@ -103,11 +104,31 @@ void limitSwitch1InterruptHandler()
     if (digitalRead(limitswitch1) == LOW)
     {
         isMotorRunning = !isMotorRunning;
-        digitalWrite(relayPin, HIGH);
-        digitalWrite(motorPin1, LOW);
-        // digitalWrite(motorPin2, LOW);
 
-        // lcd.print("big motor off");
+        if (isMotorRunning)
+        {
+            // RESUME the motor
+            if (motorWasActiveWhenPaused)
+            {
+                motorWasActiveWhenPaused = false;
+                // If the motor was active when paused, resume operation
+                digitalWrite(motorPin1, HIGH);
+                digitalWrite(motorPin2, LOW); // adjust these depending on motor's direction
+                lcd.print("Motor resumed");
+            }
+        }
+        else
+        {
+            // PAUSE the motor
+            if (motorActive)
+            {
+                motorWasActiveWhenPaused = true;
+                // If the motor was active, pause operation and remember it
+                digitalWrite(motorPin1, LOW);
+                digitalWrite(motorPin2, LOW); // This will stop the motor. Adjust based on your hardware
+                lcd.print("Motor paused");
+            }
+        }
     }
 }
 
@@ -165,28 +186,23 @@ void checkMotorDirection()
 }
 void stopOrResetIfNeeded()
 {
-    // Checking the status of control buttons
     char key = keypad.getKey();
     if (key)
     { // if a key is pressed
-        if (key == '*')
+
+        switch (key)
         {
-            // If '*' pressed, reset
+
+        case '*':
             lcd.clear();
             lcd.print("Wait for reset");
-        }
-        else if (key == '#')
-        {
-            // If '#' pressed, force stop
+            break;
+
+        case '#':
             stopEverything();
-        }
-    }
-    else if (digitalRead(limitswitch1) == LOW)
-    {
-        while (digitalRead(limitswitch1) == LOW)
-        {
-            // Doing nothing, just waiting for release the limit switch
-            delay(50); // Add delay to reduce CPU usage
+            break;
+
+            // other keys if necessary...
         }
     }
 }
@@ -416,12 +432,20 @@ void startMotorSequence()
                 delay(checkInterval);
                 stopOrResetIfNeeded(); // check if * is pressed
             }
+            while (!isMotorRunning)
+            {
+                delay(10); // use a small delay to prevent tightly locked loop
+            }
             digitalWrite(motorPin1, HIGH);
             digitalWrite(motorPin2, LOW);
             for (int i = 0; i < 3000; i += checkInterval)
             {
                 delay(checkInterval);
                 stopOrResetIfNeeded(); // check if * is pressed
+            }
+            while (!isMotorRunning)
+            {
+                delay(10); // use a small delay to prevent tightly locked loop
             }
             digitalWrite(motorPin1, LOW);
             digitalWrite(motorPin2, LOW);

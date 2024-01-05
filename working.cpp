@@ -201,6 +201,8 @@ void loop()
             }
         }
     }
+      // Reattach the limitSwitch1 interrupt
+  attachInterrupt(digitalPinToInterrupt(limitswitch1InterruptPin), limitSwitch1InterruptHandler, FALLING);
 
     // All main logic is handled within sub-functions
 }
@@ -469,9 +471,9 @@ void stopEverything()
     }
 
     // resetArduino(); // Resets the system to initial state
-    softwareReset()
+    softwareReset();
 
-        isMotorRunning = false;
+    // isMotorRunning = false;
 }
 
 void softwareReset()
@@ -484,22 +486,22 @@ void resetArduino()
     // Reset Arduino to the initial state
     // This function could reset all variables and states back to the beginning
     // and be invoked when a reset is requested by the user or system.
-    // loopCount = 0;
-    // limitSwitch2Count = 0;
-    // motorActive = false; // Ensure motor is not in a running state
-    // nValueSet = false;   // Reset the N value set flag
-    // isMotorRunning = false;
-    // digitalWrite(motorPin1, LOW);
-    // digitalWrite(motorPin2, LOW); // Stop the motor
-    // digitalWrite(relayPin, HIGH); // Turn the relay off (assuming active LOW)
-    // lcd.clear();
-    // lcd.print("System Reset!");
-    // delay(1000); // Wait for 1 second
-    // lcd.clear();
-    softwareReset()
+    loopCount = 0;
+    limitSwitch2Count = 0;
+    motorActive = false; // Ensure motor is not in a running state
+    nValueSet = false;   // Reset the N value set flag
+    isMotorRunning = false;
+    digitalWrite(motorPin1, LOW);
+    digitalWrite(motorPin2, LOW); // Stop the motor
+    digitalWrite(relayPin, HIGH); // Turn the relay off (assuming active LOW)
+    lcd.clear();
+    lcd.print("System Reset!");
+    delay(1000); // Wait for 1 second
+    lcd.clear();
+    softwareReset();
 
         // Call the initial functions again to start over
-        checkMotorDirection(); // Optionally call the direction function if that's the intended reset behaviour
+    checkMotorDirection(); // Optionally call the direction function if that's the intended reset behaviour
     fetchNValue();             // Comment this out if you want to start with motor direction after reset
 }
 

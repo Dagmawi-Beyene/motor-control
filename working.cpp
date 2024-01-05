@@ -85,7 +85,6 @@ void setup()
     lcd.clear();
 
     attachInterrupt(digitalPinToInterrupt(limitswitch1InterruptPin), limitSwitch1InterruptHandler, FALLING);
-    // attachInterrupt(digitalPinToInterrupt(limitswitch1InterruptPin), restartMotorSequenceHandler, FALLING);
 
     checkMotorDirection();
 }
@@ -166,23 +165,28 @@ void checkMotorDirection()
 }
 void stopOrResetIfNeeded()
 {
+    // Checking the status of control buttons
     char key = keypad.getKey();
     if (key)
     { // if a key is pressed
-
-        switch (key)
+        if (key == '*')
         {
-
-        case '*':
+            // If '*' pressed, reset
             lcd.clear();
             lcd.print("Wait for reset");
-            break;
-
-        case '#':
+        }
+        else if (key == '#')
+        {
+            // If '#' pressed, force stop
             stopEverything();
-            break;
-
-            // other keys if necessary...
+        }
+    }
+    else if (digitalRead(limitswitch1) == LOW)
+    {
+        while (digitalRead(limitswitch1) == LOW)
+        {
+            // Doing nothing, just waiting for release the limit switch
+            delay(50); // Add delay to reduce CPU usage
         }
     }
 }

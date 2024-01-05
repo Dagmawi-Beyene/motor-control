@@ -84,8 +84,8 @@ void setup()
     delay(500);
     lcd.clear();
 
-    // attachInterrupt(digitalPinToInterrupt(limitswitch1InterruptPin), limitSwitch1InterruptHandler, FALLING);
-    attachInterrupt(digitalPinToInterrupt(limitswitch1InterruptPin), restartMotorSequenceHandler, FALLING);
+    attachInterrupt(digitalPinToInterrupt(limitswitch1InterruptPin), limitSwitch1InterruptHandler, FALLING);
+    // attachInterrupt(digitalPinToInterrupt(limitswitch1InterruptPin), restartMotorSequenceHandler, FALLING);
 
     checkMotorDirection();
 }

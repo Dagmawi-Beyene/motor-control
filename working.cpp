@@ -460,6 +460,11 @@ void startMotorSequence()
         {
             key = keypad.getKey();
             delay(20);
+            if (digitalRead(limitswitch1) == LOW)
+            {
+                isMotorRunning = true;
+                startMotorSequence();
+            }
         }
         resetArduino();
     }

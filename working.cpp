@@ -51,6 +51,7 @@ int limitSwitch2Count = 0;
 const int limitswitch1InterruptPin = 2; // The pin number for Limit Switch 1 should match the signal pin connected to it.
 volatile bool isMotorRunning = false;
 volatile bool motorActive = false; // This flag controls the state of the motor loop.
+volatile bool restartMotorSequence = false;
 
 // Function prototypes
 void startMotorSequence();
@@ -83,9 +84,18 @@ void setup()
     delay(500);
     lcd.clear();
 
-    attachInterrupt(digitalPinToInterrupt(limitswitch1InterruptPin), limitSwitch1InterruptHandler, FALLING);
+    // attachInterrupt(digitalPinToInterrupt(limitswitch1InterruptPin), limitSwitch1InterruptHandler, FALLING);
+    attachInterrupt(digitalPinToInterrupt(limitswitch1InterruptPin), restartMotorSequenceHandler, FALLING);
 
     checkMotorDirection();
+}
+void restartMotorSequenceHandler()
+{
+    delay(100); // Simple debouncing
+    if (digitalRead(limitswitch1) == LOW)
+    {
+        restartMotorSequence = true;
+    }
 }
 
 void limitSwitch1InterruptHandler()
@@ -201,8 +211,13 @@ void loop()
             }
         }
     }
-      // Reattach the limitSwitch1 interrupt
-  attachInterrupt(digitalPinToInterrupt(limitswitch1InterruptPin), limitSwitch1InterruptHandler, FALLING);
+
+    // Check if it needs to restart the motor sequence
+    if (restartMotorSequence)
+    {
+        restartMotorSequence = false; // Reset the flag
+        startMotorSequence();
+    }
 
     // All main logic is handled within sub-functions
 }
@@ -500,9 +515,9 @@ void resetArduino()
     lcd.clear();
     softwareReset();
 
-        // Call the initial functions again to start over
+    // Call the initial functions again to start over
     checkMotorDirection(); // Optionally call the direction function if that's the intended reset behaviour
-    fetchNValue();             // Comment this out if you want to start with motor direction after reset
+    fetchNValue();         // Comment this out if you want to start with motor direction after reset
 }
 
 // Add other necessary functions ...

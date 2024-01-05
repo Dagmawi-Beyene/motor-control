@@ -52,7 +52,7 @@ const int limitswitch1InterruptPin = 2; // The pin number for Limit Switch 1 sho
 volatile bool isMotorRunning = false;
 volatile bool motorActive = false; // This flag controls the state of the motor loop.
 volatile bool restartMotorSequence = false;
-volatile boolean variable pause = false;
+volatile bool pause = false;
 
 // Function prototypes
 void startMotorSequence();

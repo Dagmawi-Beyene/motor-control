@@ -398,7 +398,6 @@ void startMotorSequence()
             stopOrResetIfNeeded(); // <--- HERE
         }
 
-        // Check again if motorActive is still true, since it might be changed by "stopEverything()"
         if (motorActive)
         {
             digitalWrite(relayPin, LOW);
@@ -406,14 +405,13 @@ void startMotorSequence()
             lcd.print("Motor is ON ");
             lcd.print(loopCount + 1);
 
-            while (!isMotorRunning)
-            {
-                delay(10);             // Wait for a short period to prevent tightly locked loop
-                stopOrResetIfNeeded(); // <--- HERE
-            }
-
             // Forward loop operation
-            delay(motorDelayTime);
+            const int checkInterval = 100; // check every 100 ms
+            for (int i = 0; i < motorDelayTime; i += checkInterval)
+            {
+                delay(checkInterval);
+                stopOrResetIfNeeded(); // check if * is pressed
+            }
             while (!isMotorRunning)
             {
                 delay(10);             // Wait for a short period to prevent tightly locked loop
@@ -421,7 +419,16 @@ void startMotorSequence()
             }
             digitalWrite(motorPin1, HIGH);
             digitalWrite(motorPin2, LOW);
-            delay(3000);
+            for (int i = 0; i < 3000; i += checkInterval)
+            {
+                delay(checkInterval);
+                stopOrResetIfNeeded(); // check if * is pressed
+            }
+            while (!isMotorRunning)
+            {
+                delay(10);             // Wait for a short period to prevent tightly locked loop
+                stopOrResetIfNeeded(); // <--- HERE
+            }
             digitalWrite(motorPin1, LOW);
             digitalWrite(motorPin2, LOW);
 
@@ -430,6 +437,8 @@ void startMotorSequence()
             lcd.print(loopCount + 1);
             lcd.print(" done");
         }
+
+        // Check again if motorActive is still true, since it might be changed by "stopEverything()"
 
         // After each operation, check if the motor is still running
         while (!isMotorRunning)

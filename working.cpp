@@ -468,8 +468,15 @@ void stopEverything()
         delay(20);             // Adding a small delay to avoid bouncing effect and to give system some time for other tasks
     }
 
-    resetArduino(); // Resets the system to initial state
-    isMotorRunning = false;
+    // resetArduino(); // Resets the system to initial state
+    softwareReset()
+
+        isMotorRunning = false;
+}
+
+void softwareReset()
+{
+    asm volatile("  jmp 0");
 }
 
 void resetArduino()
@@ -477,22 +484,23 @@ void resetArduino()
     // Reset Arduino to the initial state
     // This function could reset all variables and states back to the beginning
     // and be invoked when a reset is requested by the user or system.
-    loopCount = 0;
-    limitSwitch2Count = 0;
-    motorActive = false; // Ensure motor is not in a running state
-    nValueSet = false;   // Reset the N value set flag
-    isMotorRunning = false;
-    digitalWrite(motorPin1, LOW);
-    digitalWrite(motorPin2, LOW); // Stop the motor
-    digitalWrite(relayPin, HIGH); // Turn the relay off (assuming active LOW)
-    lcd.clear();
-    lcd.print("System Reset!");
-    delay(1000); // Wait for 1 second
-    lcd.clear();
+    // loopCount = 0;
+    // limitSwitch2Count = 0;
+    // motorActive = false; // Ensure motor is not in a running state
+    // nValueSet = false;   // Reset the N value set flag
+    // isMotorRunning = false;
+    // digitalWrite(motorPin1, LOW);
+    // digitalWrite(motorPin2, LOW); // Stop the motor
+    // digitalWrite(relayPin, HIGH); // Turn the relay off (assuming active LOW)
+    // lcd.clear();
+    // lcd.print("System Reset!");
+    // delay(1000); // Wait for 1 second
+    // lcd.clear();
+    softwareReset()
 
-    // Call the initial functions again to start over
-    checkMotorDirection(); // Optionally call the direction function if that's the intended reset behaviour
-    fetchNValue();         // Comment this out if you want to start with motor direction after reset
+        // Call the initial functions again to start over
+        checkMotorDirection(); // Optionally call the direction function if that's the intended reset behaviour
+    fetchNValue();             // Comment this out if you want to start with motor direction after reset
 }
 
 // Add other necessary functions ...

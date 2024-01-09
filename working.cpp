@@ -53,6 +53,7 @@ volatile bool isMotorRunning = false;
 volatile bool motorActive = false; // This flag controls the state of the motor loop.
 volatile bool restartMotorSequence = false;
 volatile bool pause = false;
+int storedLoopCount = 0;
 
 // Function prototypes
 void startMotorSequence();
@@ -108,7 +109,10 @@ void limitSwitch1InterruptHandler()
         digitalWrite(relayPin, HIGH);
         digitalWrite(motorPin1, LOW);
         // digitalWrite(motorPin2, LOW);
-
+        if (pause)
+        {
+            storedLoopCount = loopCount;
+        }
         // lcd.print("big motor off");
     }
 }
@@ -389,7 +393,16 @@ void startMotorSequence()
     isMotorRunning = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
-    for (loopCount = 0; isMotorRunning && loopCount < 4; loopCount++)
+    if (!pause)
+    {
+        loopCount = storedLoopCount;
+    }
+    else
+    {
+        loopCount = 0; // Else reset loopCount as usual
+    }
+
+    for (loopCount; isMotorRunning && loopCount < 4; loopCount++)
     {
         // Check if the motor is still running after each step
         while (!isMotorRunning)

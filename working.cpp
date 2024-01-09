@@ -482,6 +482,12 @@ void startMotorSequence()
 void stopEverything()
 {
     char key = keypad.getKey();
+    while (key != '#')
+    {
+        key = keypad.getKey(); // This line will keep checking the keypad for '*' key to be pressed
+        delay(20);             // Adding a small delay to avoid bouncing effect and to give system some time for other tasks
+    }
+
     // Stop all operations
     // This function could be called during an emergency stop or a stop command from the user.
     digitalWrite(motorPin1, LOW);
@@ -492,7 +498,6 @@ void stopEverything()
 
     lcd.clear();
     lcd.print("All stopped!"); // Notify the user
-
     while (key != '*')
     {
         key = keypad.getKey(); // This line will keep checking the keypad for '*' key to be pressed

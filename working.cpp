@@ -109,10 +109,7 @@ void limitSwitch1InterruptHandler()
         digitalWrite(relayPin, HIGH);
         digitalWrite(motorPin1, LOW);
         // digitalWrite(motorPin2, LOW);
-        if (pause)
-        {
-            storedLoopCount = loopCount;
-        }
+
         // lcd.print("big motor off");
     }
 }
@@ -393,14 +390,7 @@ void startMotorSequence()
     isMotorRunning = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
-    if (!pause)
-    {
-        loopCount = storedLoopCount;
-    }
-    else
-    {
-        loopCount = 0; // Else reset loopCount as usual
-    }
+ 
 
     for (loopCount; isMotorRunning && loopCount < 4; loopCount++)
     {
@@ -442,6 +432,10 @@ void startMotorSequence()
             lcd.print("Loop ");
             lcd.print(loopCount + 1);
             lcd.print(" done");
+            if (!isMotorRunning)
+            {
+                loopCount = loopCount - 1;
+            }
         }
 
         // After each operation, check if the motor is still running

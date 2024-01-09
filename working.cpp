@@ -390,9 +390,7 @@ void startMotorSequence()
     isMotorRunning = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
- 
-
-    for (loopCount; isMotorRunning && loopCount < 4; loopCount++)
+     for (loopCount; isMotorRunning && loopCount < 4; loopCount++)
     {
         // Check if the motor is still running after each step
         while (!isMotorRunning)
@@ -472,6 +470,7 @@ void startMotorSequence()
         lcd.setCursor(0, 1);
         lcd.print("LS2 Count: ");
         lcd.print(limitSwitch2Count);
+        loopCount = 0;
         while (key != '*')
         {
             key = keypad.getKey();

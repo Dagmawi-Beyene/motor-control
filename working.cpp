@@ -209,6 +209,7 @@ void loop() {
                 // Debounce the limit switch
                 delay(50);
                 if (digitalRead(limitswitch1) == LOW) {
+                    isMotorRunning = true;
                     startMotorSequence();
                 }
             }

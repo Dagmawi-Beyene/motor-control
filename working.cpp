@@ -190,34 +190,43 @@ void stopOrResetIfNeeded()
 
 void loop()
 {
-    if (!nValueSet)
+    if (pause)
     {
-        fetchNValue();
         lcd.clear();
-        lcd.print("limit switch 1");
+        lcd.print("Loop paused");
+        while (pause)
+        {
+            delay(100); // Small delay to allow other processes
+        }
+        lcd.clear();
+        lcd.print("Resuming loop");
+        delay(1000); // Give some time to read the message before continuing
     }
-    else if (nValueSet)
+
+    if (!pause)
     {
+        if (!nValueSet)
+        {
+            fetchNValue();
+            lcd.clear();
+            lcd.print("limit switch 1");
+        }
+        else if (nValueSet)
+        {
 
-        // Check if Limit Switch 1 is pressed to start the motor sequence
-        if (digitalRead(limitswitch1) == LOW)
-        { // Assuming LOW when pressed
-            // Debounce the limit switch
-            delay(50);
-
+            // Check if Limit Switch 1 is pressed to start the motor sequence
             if (digitalRead(limitswitch1) == LOW)
-            {
-                isMotorRunning = true;
-                startMotorSequence();
+            { // Assuming LOW when pressed
+                // Debounce the limit switch
+                delay(50);
+
+                if (digitalRead(limitswitch1) == LOW)
+                {
+                    isMotorRunning = true;
+                    startMotorSequence();
+                }
             }
         }
-    }
-
-    // Check if it needs to restart the motor sequence
-    if (restartMotorSequence)
-    {
-        restartMotorSequence = false; // Reset the flag
-        startMotorSequence();
     }
 
     // All main logic is handled within sub-functions
@@ -389,7 +398,7 @@ void startMotorSequence()
     isMotorRunning = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
-    for (loopCount; isMotorRunning && loopCount < 4)
+    for (loopCount; isMotorRunning && loopCount < 4;)
     {
         // Check if the motor sequence should be paused
         if (pause)
@@ -415,10 +424,6 @@ void startMotorSequence()
                 lcd.clear();
                 lcd.print("Motor is ON ");
                 lcd.print(loopCount + 1);
-
-                while (pause)
-                {
-                }
 
                 while (!isMotorRunning)
                 {
@@ -452,13 +457,6 @@ void startMotorSequence()
 
             // After each operation, check if the motor is still running
             while (!isMotorRunning)
-            {
-                delay(10);               // Wait for a short period to prevent tightly locked loop
-                checkForImmediateStop(); // Check for immediate stop request
-            }
-
-            // while pause is true, the loop will be paused
-            while (pause)
             {
                 delay(10);               // Wait for a short period to prevent tightly locked loop
                 checkForImmediateStop(); // Check for immediate stop request

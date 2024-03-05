@@ -415,6 +415,7 @@ void startMotorSequence()
                 lcd.print("Loop ");
                 lcd.print(loopCount + 1);
                 lcd.print(" done");
+                loopCount++;
             }
 
             // After each operation, check if the motor is still running
@@ -423,7 +424,6 @@ void startMotorSequence()
                 delay(10);               // Wait for a short period to prevent tightly locked loop
                 checkForImmediateStop(); // Check for immediate stop request
             }
-            loopCount++;
         }
         // After 4 loops, go reverse until it touches Limit Switch 2
         if (motorActive && loopCount == 4)

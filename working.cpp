@@ -389,7 +389,7 @@ void startMotorSequence()
     isMotorRunning = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
-    for (loopCount; isMotorRunning && loopCount < 4)
+    for (loopCount; isMotorRunning && loopCount < 4;)
     {
         // Check if the motor sequence should be paused
         if (pause)
@@ -504,6 +504,7 @@ void startMotorSequence()
             }
             resetArduino();
         }
+        loopCount++;
     }
 }
 

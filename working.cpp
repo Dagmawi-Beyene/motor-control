@@ -190,30 +190,37 @@ void stopOrResetIfNeeded()
 
 void loop()
 {
-    stopOrResetIfNeeded();
-
     if (!nValueSet)
     {
         fetchNValue();
         lcd.clear();
         lcd.print("limit switch 1");
     }
+    else if (nValueSet)
+    {
 
-    // Check if the motor should be running or paused
-    if (isMotorRunning)
-    {
-        startMotorSequence();
+        // Check if Limit Switch 1 is pressed to start the motor sequence
+        if (digitalRead(limitswitch1) == LOW)
+        { // Assuming LOW when pressed
+            // Debounce the limit switch
+            delay(50);
+
+            if (digitalRead(limitswitch1) == LOW)
+            {
+                isMotorRunning = true;
+                startMotorSequence();
+            }
+        }
     }
-    else
-    {
-        // If the motor is paused, you can add logic here to handle the pause state
-    }
+
     // Check if it needs to restart the motor sequence
     if (restartMotorSequence)
     {
         restartMotorSequence = false; // Reset the flag
         startMotorSequence();
     }
+
+    // All main logic is handled within sub-functions
 }
 
 void motorReverseUntilLimitSwitch2()
@@ -379,9 +386,10 @@ void checkForImmediateStop()
 void startMotorSequence()
 {
     motorActive = true;
+    isMotorRunning = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
-    for (loopCount; motorActive && loopCount < 4; loopCount++)
+    for (loopCount; isMotorRunning && loopCount < 4; loopCount++)
     {
         // Check if the motor is still running after each step
         while (!isMotorRunning)
@@ -434,10 +442,10 @@ void startMotorSequence()
             checkForImmediateStop(); // Check for immediate stop request
         }
     }
-
     // After 4 loops, go reverse until it touches Limit Switch 2
-    if (motorActive && loopCount >= 4)
+    if (motorActive && loopCount == 4)
     {
+        char key = keypad.getKey();
         lcd.clear();
         lcd.print("Relay pin off");
         digitalWrite(relayPin, HIGH);
@@ -448,11 +456,11 @@ void startMotorSequence()
 
         while (digitalRead(limitswitch2) != LOW)
         {
-            // Optionally perform other tasks or checks
         }
 
         digitalWrite(motorPin1, LOW);
         digitalWrite(motorPin2, LOW);
+
         lcd.clear();
         lcd.print("Reverse complete");
 
@@ -462,25 +470,17 @@ void startMotorSequence()
         lcd.print("LS2 Count: ");
         lcd.print(limitSwitch2Count);
         loopCount = 0;
-    }
-}
-
-void waitForResume()
-{
-    // Wait here until the limit switch is pressed to continue
-    while (!isMotorRunning)
-    {
-        delay(10); // Small delay to prevent tight loop
-        // Check if Limit Switch 1 is pressed
-        if (digitalRead(limitswitch1) == LOW)
+        while (key != '*')
         {
-            delay(50); // Debounce delay
+            key = keypad.getKey();
+            delay(20);
             if (digitalRead(limitswitch1) == LOW)
             {
-                // If still pressed, unpause
                 isMotorRunning = true;
+                startMotorSequence();
             }
         }
+        resetArduino();
     }
 }
 

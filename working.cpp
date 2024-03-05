@@ -51,7 +51,7 @@ const int limitswitch1InterruptPin = 2; // The pin number for Limit Switch 1 sho
 volatile bool isMotorRunning = false;
 volatile bool motorActive = false; // This flag controls the state of the motor loop.
 volatile bool restartMotorSequence = false;
-volatile bool pause = false;
+volatile bool isPaused = false;
 int storedLoopCount = 0;
 
 // Function prototypes
@@ -100,16 +100,12 @@ void restartMotorSequenceHandler()
 
 void limitSwitch1InterruptHandler()
 {
-    delay(100); // Simple debouncing
-    if (digitalRead(limitswitch1) == LOW)
+    isPaused = !isPaused; // Toggle the pause state
+    if (isPaused)
     {
-        isMotorRunning = !isMotorRunning;
-        pause = !pause;
+        // If we're pausing, stop the motor
         digitalWrite(relayPin, HIGH);
         digitalWrite(motorPin1, LOW);
-        // digitalWrite(motorPin2, LOW);
-
-        // lcd.print("big motor off");
     }
 }
 
@@ -209,6 +205,19 @@ void loop()
             {
                 startMotorSequence();
             }
+        }
+
+        if (isPaused)
+        {
+            lcd.clear();
+            lcd.print("Loop paused");
+            while (isPaused)
+            {
+                delay(100); // Small delay to allow other processes
+                // Here you can check for other button presses to unpause
+            }
+            lcd.clear();
+            lcd.print("Resuming loop");
         }
     }
 
@@ -387,7 +396,7 @@ void startMotorSequence()
     motorActive = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
-    for (loopCount; isMotorRunning && loopCount < 4;)
+    for (loopCount; loopCount < 4;)
     {
         // Check if the motor sequence should be paused
         if (pause)
@@ -415,7 +424,6 @@ void startMotorSequence()
                 lcd.clear();
                 lcd.print("Motor is ON ");
                 lcd.print(loopCount + 1);
-
 
                 while (!isMotorRunning)
                 {
@@ -450,7 +458,6 @@ void startMotorSequence()
                 delay(10);               // Wait for a short period to prevent tightly locked loop
                 checkForImmediateStop(); // Check for immediate stop request
             }
-
         }
         // After 4 loops, go reverse until it touches Limit Switch 2
         if (motorActive && loopCount == 4)
@@ -492,7 +499,6 @@ void startMotorSequence()
             }
             resetArduino();
         }
-
     }
 }
 

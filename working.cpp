@@ -449,11 +449,8 @@ void startMotorSequence()
                 lcd.print("Loop ");
                 lcd.print(loopCount + 1);
                 lcd.print(" done");
-                if (!isMotorRunning)
-                {
-                    loopCount = loopCount - 1;
-                }
-            }
+                loopCount++
+               }
 
             // After each operation, check if the motor is still running
             while (!isMotorRunning)

@@ -399,7 +399,7 @@ void startMotorSequence()
     for (loopCount; loopCount < 4;)
     {
         // Check if the motor sequence should be paused
-        if (pause)
+        if (isPaused)
         {
             // If paused, just wait here and do not increment loopCount or perform any actions
             lcd.clear();
@@ -408,7 +408,7 @@ void startMotorSequence()
             continue;  // Skip the rest of the loop and check the condition again
         }
 
-        if (!pause)
+        if (!isPaused)
         {
             // Check if the motor is still running after each step
             while (!isMotorRunning)

@@ -1,4 +1,3 @@
-
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <Keypad.h>
@@ -29,8 +28,8 @@ char keys[ROWS][COLS] = {
     {specialKeysID[12], specialKeysID[13], specialKeysID[14], specialKeysID[15]},
     {specialKeysID[16], specialKeysID[17], specialKeysID[18], specialKeysID[19]}};
 
-byte rowPins[ROWS] = {12, 11, 8, 7, 6}; // connect to the row pinouts of the keypad
-byte colPins[COLS] = {2, 3, 4, 5};      // connect to the column pinouts of the kpd
+byte rowPins[ROWS] = {38, 36, 34, 32, 30}; // connect to the row pinouts of the keypad
+byte colPins[COLS] = {22, 24, 26, 28};      // connect to the column pinouts of the kpd
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 

@@ -402,12 +402,19 @@ void startMotorSequence()
         duration = 0;
         while (duration < motorDelayTime) {
             if (!isMotorRunning) {
-                // If paused, save the current time and exit the loop
-                storedLoopCount = loopCount; // Save loop count to resume later
-                return; // Exit the function
+                // Wait for Limit Switch 1 to be pressed to continue
+                while (!digitalRead(limitswitch1)) {
+                    // Optionally, add a small delay or perform other tasks
+                }
+                // Debounce the Limit Switch 1
+                delay(50);
+                if (digitalRead(limitswitch1)) {
+                    // If Limit Switch 1 is still pressed after debounce, resume operation
+                    isMotorRunning = true;
+                    startTime = millis(); // Reset the start time since we are resuming the operation
+                }
             }
             duration = millis() - startTime;
-            // Perform other tasks or checks if necessary
         }
 
         // Forward loop operation
@@ -419,12 +426,19 @@ void startMotorSequence()
         duration = 0;
         while (duration < 3000) { // Assuming 3000 is the forward duration
             if (!isMotorRunning) {
-                // If paused, save the current time and exit the loop
-                storedLoopCount = loopCount; // Save loop count to resume later
-                return; // Exit the function
+                // Wait for Limit Switch 1 to be pressed to continue
+                while (!digitalRead(limitswitch1)) {
+                    // Optionally, add a small delay or perform other tasks
+                }
+                // Debounce the Limit Switch 1
+                delay(50);
+                if (digitalRead(limitswitch1)) {
+                    // If Limit Switch 1 is still pressed after debounce, resume operation
+                    isMotorRunning = true;
+                    startTime = millis(); // Reset the start time since we are resuming the operation
+                }
             }
             duration = millis() - startTime;
-            // Perform other tasks or checks if necessary
         }
 
         digitalWrite(motorPin1, LOW);
@@ -440,12 +454,19 @@ void startMotorSequence()
         duration = 0;
         while (duration < 1000) { // Assuming 1000 is the delay between loops
             if (!isMotorRunning) {
-                // If paused, save the current time and exit the loop
-                storedLoopCount = loopCount; // Save loop count to resume later
-                return; // Exit the function
+                // Wait for Limit Switch 1 to be pressed to continue
+                while (!digitalRead(limitswitch1)) {
+                    // Optionally, add a small delay or perform other tasks
+                }
+                // Debounce the Limit Switch 1
+                delay(50);
+                if (digitalRead(limitswitch1)) {
+                    // If Limit Switch 1 is still pressed after debounce, resume operation
+                    isMotorRunning = true;
+                    startTime = millis(); // Reset the start time since we are resuming the operation
+                }
             }
             duration = millis() - startTime;
-            // Perform other tasks or checks if necessary
         }
     }
 

@@ -100,10 +100,10 @@ void restartMotorSequenceHandler()
 
 void limitSwitch1InterruptHandler()
 {
-    delay(100); // Simple debouncing
+    // delay(100); // Simple debouncing
     if (digitalRead(limitswitch1) == LOW)
     {
-        isMotorRunning = !isMotorRunning;
+        // isMotorRunning = !isMotorRunning;
         pause = !pause;
         digitalWrite(relayPin, HIGH);
         digitalWrite(motorPin1, LOW);
@@ -196,7 +196,7 @@ void loop()
         lcd.print("Loop paused");
         while (pause)
         {
-            delay(100); // Small delay to allow other processes
+            // delay(100); // Small delay to allow other processes
         }
         lcd.clear();
         lcd.print("Resuming loop");
@@ -395,18 +395,10 @@ void checkForImmediateStop()
 void startMotorSequence()
 {
     motorActive = true;
-    isMotorRunning = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
     for (loopCount; isMotorRunning && loopCount < 4;)
     {
-        // Check if the motor sequence should be paused
-        if (pause)
-        {
-            // If paused, just wait here and do not increment loopCount or perform any actions
-            delay(10); // Wait for a short period
-            continue;  // Skip the rest of the loop and check the condition again
-        }
 
         if (!pause)
         {
@@ -431,6 +423,11 @@ void startMotorSequence()
                     stopOrResetIfNeeded(); // <--- HERE
                 }
 
+                while (pause)
+                {
+                    lcd.clear();
+                    lcd.print("paused");
+                }
                 // Forward loop operation
                 delay(motorDelayTime);
                 while (!isMotorRunning)
@@ -449,8 +446,8 @@ void startMotorSequence()
                 lcd.print("Loop ");
                 lcd.print(loopCount + 1);
                 lcd.print(" done");
-                loopCount++
-               }
+                loopCount++;
+            }
 
             // After each operation, check if the motor is still running
             while (!isMotorRunning)

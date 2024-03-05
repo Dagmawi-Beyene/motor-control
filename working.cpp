@@ -100,16 +100,21 @@ void restartMotorSequenceHandler()
 
 void limitSwitch1InterruptHandler()
 {
-    // delay(100); // Simple debouncing
     if (digitalRead(limitswitch1) == LOW)
     {
+        static unsigned long last_interrupt_time = 0;
+        unsigned long interrupt_time = millis();
+        // Simple debounce check
+        if (interrupt_time - last_interrupt_time > 50)
+        {
+            pause = !pause;
+        }
+        last_interrupt_time = interrupt_time;
+        // delay(100); // Simple debouncing
+
         isMotorRunning = !isMotorRunning;
-        pause = !pause;
         digitalWrite(relayPin, HIGH);
         digitalWrite(motorPin1, LOW);
-        // digitalWrite(motorPin2, LOW);
-
-        // lcd.print("big motor off");
     }
 }
 
@@ -194,13 +199,8 @@ void loop()
     {
         lcd.clear();
         lcd.print("Loop paused");
-        while (pause)
-        {
-            delay(100); // Small delay to allow other processes
-        }
-        lcd.clear();
-        lcd.print("Resuming loop");
-        delay(1000); // Give some time to read the message before continuing
+        // Here, instead of a while loop, you could simply return to avoid blocking other logic
+        return;
     }
 
     if (!pause)
@@ -214,15 +214,10 @@ void loop()
         else if (nValueSet)
         {
 
-            // Check if Limit Switch 1 is pressed to start the motor sequence
             if (digitalRead(limitswitch1) == LOW)
-            { // Assuming LOW when pressed
-
-                if (digitalRead(limitswitch1) == LOW)
-                {
-                    isMotorRunning = true;
-                    startMotorSequence();
-                }
+            {
+                isMotorRunning = true;
+                startMotorSequence();
             }
         }
     }

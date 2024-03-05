@@ -378,57 +378,50 @@ void checkForImmediateStop()
 void startMotorSequence()
 {
     motorActive = true;
-    unsigned long motorDelayTime = N * 1000; // Calculate delay time (t) in milliseconds.
+    int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
-    for (loopCount = storedLoopCount; motorActive && loopCount < 4; loopCount++)
-    {
-        // Check if the motor should be paused
-        if (!isMotorRunning)
-        {
-            waitForResume();
+    for (loopCount; motorActive && loopCount < 4; loopCount++) {
+        // Check if the motor is paused before each operation
+        while (!isMotorRunning) {
+            delay(10); // Wait for a short period to prevent tightly locked loop
+            stopOrResetIfNeeded(); // Check if the system should be stopped or reset
         }
 
-        // Assuming relayPin controls the motor power and should be LOW to enable the motor
-        digitalWrite(relayPin, LOW);
-        lcd.clear();
-        lcd.print("Motor is ON ");
-        lcd.print(loopCount + 1);
+        // Perform motor operations only if isMotorRunning is true
+        if (isMotorRunning) {
+            digitalWrite(relayPin, LOW);
+            lcd.clear();
+            lcd.print("Motor is ON ");
+            lcd.print(loopCount + 1);
 
-        // Forward loop operation
-        unsigned long startTime = millis();
-        while (millis() - startTime < motorDelayTime)
-        {
-            if (!isMotorRunning)
-            {
-                waitForResume();
-                startTime = millis(); // Reset the start time since we are resuming the operation
+            // Forward loop operation
+            delay(motorDelayTime);
+
+            // Check if the motor is paused after delay
+            while (!isMotorRunning) {
+                delay(10); // Wait for a short period to prevent tightly locked loop
+                stopOrResetIfNeeded(); // Check if the system should be stopped or reset
             }
-        }
 
-        digitalWrite(motorPin1, HIGH);
-        digitalWrite(motorPin2, LOW);
-        startTime = millis();
-        while (millis() - startTime < 3000)
-        {
-            if (!isMotorRunning)
-            {
-                waitForResume();
-                startTime = millis(); // Reset the start time since we are resuming the operation
+            // Continue with motor operations only if isMotorRunning is true
+            if (isMotorRunning) {
+                digitalWrite(motorPin1, HIGH);
+                digitalWrite(motorPin2, LOW);
+                delay(3000); // Replace with actual motor operation time
+                digitalWrite(motorPin1, LOW);
+                digitalWrite(motorPin2, LOW);
             }
-        }
 
-        digitalWrite(motorPin1, LOW);
-        digitalWrite(motorPin2, LOW);
+            lcd.clear();
+            lcd.print("Loop ");
+            lcd.print(loopCount + 1);
+            lcd.print(" done");
 
-        lcd.clear();
-        lcd.print("Loop ");
-        lcd.print(loopCount + 1);
-        lcd.print(" done");
-
-        // Check if the motor should be paused before the next iteration
-        if (!isMotorRunning)
-        {
-            waitForResume();
+            // Check if the motor is paused after loop operation
+            while (!isMotorRunning) {
+                delay(10); // Wait for a short period to prevent tightly locked loop
+                stopOrResetIfNeeded(); // Check if the system should be stopped or reset
+            }
         }
     }
 

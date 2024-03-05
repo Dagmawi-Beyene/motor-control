@@ -103,7 +103,7 @@ void limitSwitch1InterruptHandler()
     // delay(100); // Simple debouncing
     if (digitalRead(limitswitch1) == LOW)
     {
-        // isMotorRunning = !isMotorRunning;
+        isMotorRunning = !isMotorRunning;
         pause = !pause;
         digitalWrite(relayPin, HIGH);
         digitalWrite(motorPin1, LOW);
@@ -217,8 +217,6 @@ void loop()
             // Check if Limit Switch 1 is pressed to start the motor sequence
             if (digitalRead(limitswitch1) == LOW)
             { // Assuming LOW when pressed
-                // Debounce the limit switch
-                delay(50);
 
                 if (digitalRead(limitswitch1) == LOW)
                 {
@@ -425,8 +423,7 @@ void startMotorSequence()
 
                 while (pause)
                 {
-                    lcd.clear();
-                    lcd.print("paused");
+                    continue;
                 }
                 // Forward loop operation
                 delay(motorDelayTime);

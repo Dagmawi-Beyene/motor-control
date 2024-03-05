@@ -1,3 +1,4 @@
+
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <Keypad.h>
@@ -28,8 +29,8 @@ char keys[ROWS][COLS] = {
     {specialKeysID[12], specialKeysID[13], specialKeysID[14], specialKeysID[15]},
     {specialKeysID[16], specialKeysID[17], specialKeysID[18], specialKeysID[19]}};
 
-byte rowPins[ROWS] = {38, 36, 34, 32, 30}; // connect to the row pinouts of the keypad
-byte colPins[COLS] = {22, 24, 26, 28};      // connect to the column pinouts of the kpd
+byte rowPins[ROWS] = {12, 11, 8, 7, 6}; // connect to the row pinouts of the keypad
+byte colPins[COLS] = {2, 3, 4, 5};      // connect to the column pinouts of the kpd
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
@@ -48,10 +49,11 @@ int loopCount = 0;
 int N = 0;
 int limitSwitch2Count = 0;
 const int limitswitch1InterruptPin = 2; // The pin number for Limit Switch 1 should match the signal pin connected to it.
-volatile bool isMotorRunning = false;
-volatile bool motorActive = false; // This flag controls the state of the motor loop.
+volatile bool motorActive = false;      // This flag controls the state of the motor loop.
 volatile bool restartMotorSequence = false;
 volatile bool pause = false;
+volatile bool isMotorRunning = false; // Indicates if the motor should be running
+volatile bool motorPaused = false;    // Indicates if the motor is paused
 int storedLoopCount = 0;
 
 // Function prototypes
@@ -101,6 +103,18 @@ void restartMotorSequenceHandler()
 void limitSwitch1InterruptHandler()
 {
     delay(100); // Simple debouncing
+                // Toggle the motor's running state
+    isMotorRunning = !isMotorRunning;
+
+    // If the motor is currently running, we want to pause it
+    if (motorPaused)
+    {
+        motorPaused = false; // Clear the paused flag, as we are resuming operation
+    }
+    else
+    {
+        motorPaused = true; // Set the paused flag, as we are pausing operation
+    }
     if (digitalRead(limitswitch1) == LOW)
     {
         isMotorRunning = !isMotorRunning;
@@ -188,40 +202,48 @@ void stopOrResetIfNeeded()
     }
 }
 
-void loop()
-{
-    if (!nValueSet)
-    {
-        fetchNValue();
-        lcd.clear();
-        lcd.print("limit switch 1");
-    }
-    else if (nValueSet)
-    {
+void loop() {
+  // If N value has not been set, prompt the user for it
+  if (!nValueSet) {
+    fetchNValue();
+    lcd.clear();
+    lcd.print("limit switch 1");  
+    } else {
+    // If the N value is set and the motor is running, handle motor sequence
+    if (isMotorRunning && !motorPaused) {
+      startMotorSequence();
+    } else if (motorPaused) {
+      // If the motor is paused, display a message and wait for a resume command
+      lcd.clear();
+      lcd.print("Motor Paused");
+      lcd.print(" Press LS1");
 
-        // Check if Limit Switch 1 is pressed to start the motor sequence
-        if (digitalRead(limitswitch1) == LOW)
-        { // Assuming LOW when pressed
-            // Debounce the limit switch
-            delay(50);
-
-            if (digitalRead(limitswitch1) == LOW)
-            {
-                isMotorRunning = true;
-                startMotorSequence();
-            }
+      // Check if Limit Switch 1 has been pressed to resume the motor sequence
+      if (digitalRead(limitswitch1) == LOW) {
+        // Assuming LOW when pressed, debounce the limit switch
+        delay(50);
+        if (digitalRead(limitswitch1) == LOW) {
+          // Resume motor sequence if the motor is paused and LS1 is pressed
+          motorPaused = false;
+          isMotorRunning = true;
+          lcd.clear();
+          lcd.print("Motor Resuming");
         }
+      }
     }
+  }
 
-    // Check if it needs to restart the motor sequence
-    if (restartMotorSequence)
-    {
-        restartMotorSequence = false; // Reset the flag
-        startMotorSequence();
-    }
+  // Check if it needs to restart the motor sequence
+  if (restartMotorSequence) {
+    restartMotorSequence = false; // Reset the flag
+    isMotorRunning = true; // Ensure the motor running flag is set
+    motorPaused = false; // Clear the paused flag
+    startMotorSequence();
+  }
 
-    // All main logic is handled within sub-functions
+  // All main logic is handled within sub-functions
 }
+
 
 void motorReverseUntilLimitSwitch2()
 {
@@ -389,7 +411,7 @@ void startMotorSequence()
     isMotorRunning = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
-     for (loopCount; isMotorRunning && loopCount < 4; loopCount++)
+    for (loopCount; isMotorRunning && loopCount < 4; loopCount++)
     {
         // Check if the motor is still running after each step
         while (!isMotorRunning)

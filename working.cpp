@@ -184,52 +184,46 @@ void stopOrResetIfNeeded()
     }
 }
 
-void loop()
-{
-    if (!nValueSet)
-    {
-        fetchNValue();
+void loop() {
+    // Check if the system is paused and handle accordingly
+    if (isPaused) {
         lcd.clear();
-        lcd.print("limit switch 1");
+        lcd.print("Loop paused");
+        while (isPaused) {
+            delay(100); // Small delay to allow other processes
+            // Here you can check for other button presses to unpause
+        }
+        lcd.clear();
+        lcd.print("Resuming loop");
     }
-    else if (nValueSet)
-    {
 
-        // Check if Limit Switch 1 is pressed to start the motor sequence
-        if (digitalRead(limitswitch1) == LOW)
-        { // Assuming LOW when pressed
-            // Debounce the limit switch
-            delay(50);
-
-            if (digitalRead(limitswitch1) == LOW)
-            {
-                startMotorSequence();
+    // Continue with other checks only if the system is not paused
+    if (!isPaused) {
+        if (!nValueSet) {
+            fetchNValue();
+            lcd.clear();
+            lcd.print("Set N value");
+        } else {
+            // Check if Limit Switch 1 is pressed to start the motor sequence
+            if (digitalRead(limitswitch1) == LOW) {
+                // Debounce the limit switch
+                delay(50);
+                if (digitalRead(limitswitch1) == LOW) {
+                    startMotorSequence();
+                }
             }
         }
 
-        if (isPaused)
-        {
-            lcd.clear();
-            lcd.print("Loop paused");
-            while (isPaused)
-            {
-                delay(100); // Small delay to allow other processes
-                // Here you can check for other button presses to unpause
-            }
-            lcd.clear();
-            lcd.print("Resuming loop");
+        // Check if it needs to restart the motor sequence
+        if (restartMotorSequence) {
+            restartMotorSequence = false; // Reset the flag
+            startMotorSequence();
         }
-    }
-
-    // Check if it needs to restart the motor sequence
-    if (restartMotorSequence)
-    {
-        restartMotorSequence = false; // Reset the flag
-        startMotorSequence();
     }
 
     // All main logic is handled within sub-functions
 }
+
 
 void motorReverseUntilLimitSwitch2()
 {

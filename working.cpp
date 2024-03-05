@@ -29,7 +29,7 @@ char keys[ROWS][COLS] = {
     {specialKeysID[16], specialKeysID[17], specialKeysID[18], specialKeysID[19]}};
 
 byte rowPins[ROWS] = {38, 36, 34, 32, 30}; // connect to the row pinouts of the keypad
-byte colPins[COLS] = {22, 24, 26, 28};     // connect to the column pinouts of the kpd
+byte colPins[COLS] = {22, 24, 26, 28};      // connect to the column pinouts of the kpd
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
@@ -387,66 +387,70 @@ void startMotorSequence()
 {
     motorActive = true;
     isMotorRunning = true;
-    int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
+    unsigned long motorDelayTime = N * 1000; // Calculate delay time (t) in milliseconds.
+    unsigned long startTime;
+    unsigned long duration;
 
-    for (loopCount; isMotorRunning && loopCount < 4; loopCount++)
-    {
-        if (!isMotorRunning)
-        {
-            // Check if the motor is still running after each step
-            while (!isMotorRunning)
-            {
-                delay(10);             // Wait for a short period to prevent tightly locked loop
-                stopOrResetIfNeeded(); // <--- HERE
+    for (loopCount = storedLoopCount; motorActive && loopCount < 4; loopCount++) {
+        digitalWrite(relayPin, LOW);
+        lcd.clear();
+        lcd.print("Motor is ON ");
+        lcd.print(loopCount + 1);
+
+        // Non-blocking delay
+        startTime = millis();
+        duration = 0;
+        while (duration < motorDelayTime) {
+            if (!isMotorRunning) {
+                // If paused, save the current time and exit the loop
+                storedLoopCount = loopCount; // Save loop count to resume later
+                return; // Exit the function
             }
+            duration = millis() - startTime;
+            // Perform other tasks or checks if necessary
         }
 
-        // Check again if motorActive is still true, since it might be changed by "stopEverything()"
-        if (motorActive)
-        {
-            digitalWrite(relayPin, LOW);
-            lcd.clear();
-            lcd.print("Motor is ON ");
-            lcd.print(loopCount + 1);
+        // Forward loop operation
+        digitalWrite(motorPin1, HIGH);
+        digitalWrite(motorPin2, LOW);
 
-            while (!isMotorRunning)
-            {
-                delay(10);             // Wait for a short period to prevent tightly locked loop
-                stopOrResetIfNeeded(); // <--- HERE
+        // Non-blocking delay for motor forward duration
+        startTime = millis();
+        duration = 0;
+        while (duration < 3000) { // Assuming 3000 is the forward duration
+            if (!isMotorRunning) {
+                // If paused, save the current time and exit the loop
+                storedLoopCount = loopCount; // Save loop count to resume later
+                return; // Exit the function
             }
-
-            // Forward loop operation
-            delay(motorDelayTime);
-            while (!isMotorRunning)
-            {
-                delay(10);             // Wait for a short period to prevent tightly locked loop
-                stopOrResetIfNeeded(); // <--- HERE
-            }
-            digitalWrite(motorPin1, HIGH);
-            digitalWrite(motorPin2, LOW);
-            delay(3000);
-            digitalWrite(motorPin1, LOW);
-            digitalWrite(motorPin2, LOW);
-
-            lcd.clear();
-            lcd.print("Loop ");
-            lcd.print(loopCount + 1);
-            lcd.print(" done");
-            if (!isMotorRunning)
-            {
-                loopCount = loopCount - 1;
-            }
+            duration = millis() - startTime;
+            // Perform other tasks or checks if necessary
         }
-        if (!isMotorRunning)
-        {
-            // Check if the motor is still running after each step
-            while (!isMotorRunning)
-            {
-                delay(10);             // Wait for a short period to prevent tightly locked loop
-                stopOrResetIfNeeded(); // <--- HERE
+
+        digitalWrite(motorPin1, LOW);
+        digitalWrite(motorPin2, LOW);
+
+        lcd.clear();
+        lcd.print("Loop ");
+        lcd.print(loopCount + 1);
+        lcd.print(" done");
+
+        // Non-blocking delay between loops
+        startTime = millis();
+        duration = 0;
+        while (duration < 1000) { // Assuming 1000 is the delay between loops
+            if (!isMotorRunning) {
+                // If paused, save the current time and exit the loop
+                storedLoopCount = loopCount; // Save loop count to resume later
+                return; // Exit the function
             }
+            duration = millis() - startTime;
+            // Perform other tasks or checks if necessary
         }
     }
+
+    // After completing all loops, reset storedLoopCount
+    storedLoopCount = 0;
     // After 4 loops, go reverse until it touches Limit Switch 2
     if (motorActive && loopCount == 4)
     {

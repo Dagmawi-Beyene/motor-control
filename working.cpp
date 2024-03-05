@@ -373,108 +373,95 @@ void startMotorSequence()
 
     for (loopCount; loopCount < 4;)
     {
-        // Check if the motor sequence should be paused
-        if (isPaused)
+        // Check if the motor is still running after each step
+        while (!isMotorRunning)
         {
-            // If paused, just wait here and do not increment loopCount or perform any actions
-            lcd.clear();
-            lcd.print("Loop paused ");
-            delay(10); // Wait for a short period
-            continue;  // Skip the rest of the loop and check the condition again
+            delay(10);             // Wait for a short period to prevent tightly locked loop
+            stopOrResetIfNeeded(); // <--- HERE
         }
 
-        if (!isPaused)
+        // Check again if motorActive is still true, since it might be changed by "stopEverything()"
+        if (motorActive)
         {
-            // Check if the motor is still running after each step
+            digitalWrite(relayPin, LOW);
+            lcd.clear();
+            lcd.print("Motor is ON ");
+            lcd.print(loopCount + 1);
+
             while (!isMotorRunning)
             {
                 delay(10);             // Wait for a short period to prevent tightly locked loop
                 stopOrResetIfNeeded(); // <--- HERE
             }
 
-            // Check again if motorActive is still true, since it might be changed by "stopEverything()"
-            if (motorActive)
-            {
-                digitalWrite(relayPin, LOW);
-                lcd.clear();
-                lcd.print("Motor is ON ");
-                lcd.print(loopCount + 1);
-
-                while (!isMotorRunning)
-                {
-                    delay(10);             // Wait for a short period to prevent tightly locked loop
-                    stopOrResetIfNeeded(); // <--- HERE
-                }
-
-                // Forward loop operation
-                delay(motorDelayTime);
-                while (!isMotorRunning)
-                {
-                    delay(10);             // Wait for a short period to prevent tightly locked loop
-                    stopOrResetIfNeeded(); // <--- HERE
-                }
-
-                digitalWrite(motorPin1, HIGH);
-                digitalWrite(motorPin2, LOW);
-                delay(3000);
-                digitalWrite(motorPin1, LOW);
-                digitalWrite(motorPin2, LOW);
-
-                lcd.clear();
-                lcd.print("Loop ");
-                lcd.print(loopCount + 1);
-                lcd.print(" done");
-            }
-
-            // After each operation, check if the motor is still running
+            // Forward loop operation
+            delay(motorDelayTime);
             while (!isMotorRunning)
             {
-                delay(10);               // Wait for a short period to prevent tightly locked loop
-                checkForImmediateStop(); // Check for immediate stop request
-            }
-        }
-        // After 4 loops, go reverse until it touches Limit Switch 2
-        if (motorActive && loopCount == 4)
-        {
-            char key = keypad.getKey();
-            lcd.clear();
-            lcd.print("Relay pin off");
-            digitalWrite(relayPin, HIGH);
-            lcd.clear();
-            lcd.print("Reversing");
-            digitalWrite(motorPin1, LOW);
-            digitalWrite(motorPin2, HIGH);
-
-            while (digitalRead(limitswitch2) != LOW)
-            {
+                delay(10);             // Wait for a short period to prevent tightly locked loop
+                stopOrResetIfNeeded(); // <--- HERE
             }
 
+            digitalWrite(motorPin1, HIGH);
+            digitalWrite(motorPin2, LOW);
+            delay(3000);
             digitalWrite(motorPin1, LOW);
             digitalWrite(motorPin2, LOW);
 
             lcd.clear();
-            lcd.print("Reverse complete");
-
-            // Update the count of how many times Limit Switch 2 was triggered
-            limitSwitch2Count++;
-            lcd.setCursor(0, 1);
-            lcd.print("LS2 Count: ");
-            lcd.print(limitSwitch2Count);
-            loopCount = 0;
-            while (key != '*')
-            {
-                key = keypad.getKey();
-                delay(20);
-                if (digitalRead(limitswitch1) == LOW)
-                {
-                    isMotorRunning = true;
-                    startMotorSequence();
-                }
-            }
-            resetArduino();
+            lcd.print("Loop ");
+            lcd.print(loopCount + 1);
+            lcd.print(" done");
         }
-        loopCount++;
+
+        // After each operation, check if the motor is still running
+        while (!isMotorRunning)
+        {
+            delay(10);               // Wait for a short period to prevent tightly locked loop
+            checkForImmediateStop(); // Check for immediate stop request
+        }
     }
+    // After 4 loops, go reverse until it touches Limit Switch 2
+    if (motorActive && loopCount == 4)
+    {
+        char key = keypad.getKey();
+        lcd.clear();
+        lcd.print("Relay pin off");
+        digitalWrite(relayPin, HIGH);
+        lcd.clear();
+        lcd.print("Reversing");
+        digitalWrite(motorPin1, LOW);
+        digitalWrite(motorPin2, HIGH);
+
+        while (digitalRead(limitswitch2) != LOW)
+        {
+        }
+
+        digitalWrite(motorPin1, LOW);
+        digitalWrite(motorPin2, LOW);
+
+        lcd.clear();
+        lcd.print("Reverse complete");
+
+        // Update the count of how many times Limit Switch 2 was triggered
+        limitSwitch2Count++;
+        lcd.setCursor(0, 1);
+        lcd.print("LS2 Count: ");
+        lcd.print(limitSwitch2Count);
+        loopCount = 0;
+        while (key != '*')
+        {
+            key = keypad.getKey();
+            delay(20);
+            if (digitalRead(limitswitch1) == LOW)
+            {
+                isMotorRunning = true;
+                startMotorSequence();
+            }
+        }
+        resetArduino();
+    }
+    loopCount++;
 }
 
 void stopEverything()

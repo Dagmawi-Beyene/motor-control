@@ -29,7 +29,7 @@ char keys[ROWS][COLS] = {
     {specialKeysID[16], specialKeysID[17], specialKeysID[18], specialKeysID[19]}};
 
 byte rowPins[ROWS] = {38, 36, 34, 32, 30}; // connect to the row pinouts of the keypad
-byte colPins[COLS] = {22, 24, 26, 28};     // connect to the column pinouts of the kpd
+byte colPins[COLS] = {22, 24, 26, 28};      // connect to the column pinouts of the kpd
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
@@ -389,7 +389,7 @@ void startMotorSequence()
     isMotorRunning = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
-    for (loopCount; isMotorRunning && loopCount < 4; loopCount++)
+     for (loopCount; isMotorRunning && loopCount < 4; loopCount++)
     {
         // Check if the motor is still running after each step
         while (!isMotorRunning)

@@ -50,7 +50,6 @@ int limitSwitch2Count = 0;
 const int limitswitch1InterruptPin = 2; // The pin number for Limit Switch 1 should match the signal pin connected to it.
 volatile bool isMotorRunning = false;
 volatile bool motorActive = false; // This flag controls the state of the motor loop.
-volatile bool restartMotorSequence = false;
 volatile bool isPaused = false;
 int storedLoopCount = 0;
 
@@ -88,14 +87,6 @@ void setup()
     attachInterrupt(digitalPinToInterrupt(limitswitch1InterruptPin), limitSwitch1InterruptHandler, FALLING);
 
     checkMotorDirection();
-}
-void restartMotorSequenceHandler()
-{
-    delay(100); // Simple debouncing
-    if (digitalRead(limitswitch1) == LOW)
-    {
-        restartMotorSequence = true;
-    }
 }
 
 void limitSwitch1InterruptHandler()
@@ -184,47 +175,36 @@ void stopOrResetIfNeeded()
     }
 }
 
-void loop() {
+void loop()
+{
     // Check if the system is paused and handle accordingly
-    if (isPaused) {
+    if (isPaused)
+    {
         lcd.clear();
         lcd.print("Loop paused");
-        while (isPaused) {
-            delay(100); // Small delay to allow other processes
-            // Here you can check for other button presses to unpause
-        }
-        lcd.clear();
-        lcd.print("Resuming loop");
     }
-
-    // Continue with other checks only if the system is not paused
-    if (!isPaused) {
-        if (!nValueSet) {
+    else
+    {
+        if (!nValueSet)
+        {
             fetchNValue();
             lcd.clear();
             lcd.print("Set N value");
-        } else {
-            // Check if Limit Switch 1 is pressed to start the motor sequence
-            if (digitalRead(limitswitch1) == LOW) {
-                // Debounce the limit switch
-                delay(50);
-                if (digitalRead(limitswitch1) == LOW) {
-                    isMotorRunning = true;
-                    startMotorSequence();
-                }
-            }
         }
+        else
+        {
+            // Check if Limit Switch 1 is pressed to start the motor sequence
 
-        // Check if it needs to restart the motor sequence
-        if (restartMotorSequence) {
-            restartMotorSequence = false; // Reset the flag
-            startMotorSequence();
+            if (digitalRead(limitswitch1) == LOW)
+            {
+                isMotorRunning = true;
+                startMotorSequence();
+            }
         }
     }
 
     // All main logic is handled within sub-functions
 }
-
 
 void motorReverseUntilLimitSwitch2()
 {
@@ -444,7 +424,6 @@ void startMotorSequence()
                 lcd.print("Loop ");
                 lcd.print(loopCount + 1);
                 lcd.print(" done");
-                loopCount++;
             }
 
             // After each operation, check if the motor is still running
@@ -494,6 +473,7 @@ void startMotorSequence()
             }
             resetArduino();
         }
+        loopCount++;
     }
 }
 

@@ -196,7 +196,7 @@ void loop()
         lcd.print("Loop paused");
         while (pause)
         {
-            // delay(100); // Small delay to allow other processes
+            delay(100); // Small delay to allow other processes
         }
         lcd.clear();
         lcd.print("Resuming loop");

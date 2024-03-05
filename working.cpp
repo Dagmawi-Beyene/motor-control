@@ -435,7 +435,7 @@ void startMotorSequence()
 
         // Delay between loops if needed
         // ...
-    }
+
 
     // Check again if we should pause before proceeding to the next loop
     if (!isMotorRunning)
@@ -445,6 +445,7 @@ void startMotorSequence()
         // Break out of the loop to prevent going to the next iteration
         break;
     }
+
 
     // After 4 loops, go reverse until it touches Limit Switch 2
     if (loopCount >= 4)
@@ -513,6 +514,7 @@ void startMotorSequence()
     {
         // After completing all loops, reset storedLoopCount
         storedLoopCount = 0;
+    }
     }
 }
 

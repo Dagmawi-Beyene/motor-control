@@ -416,9 +416,6 @@ void startMotorSequence()
                 lcd.print("Motor is ON ");
                 lcd.print(loopCount + 1);
 
-                while (pause)
-                {
-                }
 
                 while (!isMotorRunning)
                 {
@@ -444,10 +441,7 @@ void startMotorSequence()
                 lcd.print("Loop ");
                 lcd.print(loopCount + 1);
                 lcd.print(" done");
-                if (!isMotorRunning)
-                {
-                    loopCount = loopCount - 1;
-                }
+                loopCount++;
             }
 
             // After each operation, check if the motor is still running
@@ -457,12 +451,6 @@ void startMotorSequence()
                 checkForImmediateStop(); // Check for immediate stop request
             }
 
-            // while pause is true, the loop will be paused
-            while (pause)
-            {
-                delay(10);               // Wait for a short period to prevent tightly locked loop
-                checkForImmediateStop(); // Check for immediate stop request
-            }
         }
         // After 4 loops, go reverse until it touches Limit Switch 2
         if (motorActive && loopCount == 4)
@@ -504,7 +492,7 @@ void startMotorSequence()
             }
             resetArduino();
         }
-        loopCount++;
+
     }
 }
 

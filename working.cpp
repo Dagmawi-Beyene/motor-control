@@ -98,20 +98,21 @@ void restartMotorSequenceHandler()
     }
 }
 
-void limitSwitch1InterruptHandler()
-{
-    delay(100); // Simple debouncing
-    if (digitalRead(limitswitch1) == LOW)
-    {
+void limitSwitch1InterruptHandler() {
+    static unsigned long lastInterruptTime = 0;
+    unsigned long interruptTime = millis();
+
+    // If interrupts come faster than 200ms, assume it's a bounce and ignore
+    if (interruptTime - lastInterruptTime > 200) {
         isMotorRunning = !isMotorRunning;
         pause = !pause;
         digitalWrite(relayPin, HIGH);
         digitalWrite(motorPin1, LOW);
         // digitalWrite(motorPin2, LOW);
-
-        // lcd.print("big motor off");
     }
+    lastInterruptTime = interruptTime;
 }
+
 
 void checkMotorDirection()
 {

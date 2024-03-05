@@ -102,14 +102,18 @@ void limitSwitch1InterruptHandler()
 {
     if (digitalRead(limitswitch1) == LOW)
     {
-        static unsigned long last_interrupt_time = 0;
-        unsigned long interrupt_time = millis();
-        // Simple debounce check
-        if (interrupt_time - last_interrupt_time > 50)
+        if (isMotorRunning)
         {
-            pause = !pause;
+            static unsigned long last_interrupt_time = 0;
+            unsigned long interrupt_time = millis();
+            // Simple debounce check
+            if (interrupt_time - last_interrupt_time > 50)
+            {
+                pause = !pause;
+            }
+            last_interrupt_time = interrupt_time;
         }
-        last_interrupt_time = interrupt_time;
+
         // delay(100); // Simple debouncing
 
         isMotorRunning = !isMotorRunning;
@@ -418,6 +422,7 @@ void startMotorSequence()
 
                 while (pause)
                 {
+                    loopCount = loopCount - 1;
                     continue;
                 }
                 // Forward loop operation

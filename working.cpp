@@ -207,7 +207,6 @@ void loop()
 
             if (digitalRead(limitswitch1) == LOW)
             {
-                isMotorRunning = true;
                 startMotorSequence();
             }
         }

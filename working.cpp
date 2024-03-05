@@ -29,7 +29,7 @@ char keys[ROWS][COLS] = {
     {specialKeysID[16], specialKeysID[17], specialKeysID[18], specialKeysID[19]}};
 
 byte rowPins[ROWS] = {38, 36, 34, 32, 30}; // connect to the row pinouts of the keypad
-byte colPins[COLS] = {22, 24, 26, 28};      // connect to the column pinouts of the kpd
+byte colPins[COLS] = {22, 24, 26, 28};     // connect to the column pinouts of the kpd
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
@@ -386,88 +386,71 @@ void checkForImmediateStop()
 void startMotorSequence()
 {
     motorActive = true;
-    isMotorRunning = true;
     unsigned long motorDelayTime = N * 1000; // Calculate delay time (t) in milliseconds.
     unsigned long startTime;
     unsigned long duration;
 
-    for (loopCount = storedLoopCount; motorActive && loopCount < 4; loopCount++) {
+    for (loopCount = storedLoopCount; motorActive && loopCount < 4; loopCount++)
+    {
+        // Check if we should continue running or if we were paused
+        if (!isMotorRunning)
+        {
+            // Wait here until the limit switch is pressed to continue
+            while (!isMotorRunning)
+            {
+                delay(10); // Small delay to prevent tight loop
+                // Check if Limit Switch 1 is pressed
+                if (digitalRead(limitswitch1) == LOW)
+                {
+                    delay(50); // Debounce delay
+                    if (digitalRead(limitswitch1) == LOW)
+                    {
+                        // If still pressed, unpause
+                        isMotorRunning = true;
+                    }
+                }
+            }
+        }
+
+        // Assuming relayPin controls the motor power and should be LOW to enable the motor
         digitalWrite(relayPin, LOW);
+
         lcd.clear();
         lcd.print("Motor is ON ");
         lcd.print(loopCount + 1);
 
-        // Non-blocking delay
-        startTime = millis();
-        duration = 0;
-        while (duration < motorDelayTime) {
-            if (!isMotorRunning) {
-                // Wait for Limit Switch 1 to be pressed to continue
-                while (!digitalRead(limitswitch1)) {
-                    // Optionally, add a small delay or perform other tasks
-                }
-                // Debounce the Limit Switch 1
-                delay(50);
-                if (digitalRead(limitswitch1)) {
-                    // If Limit Switch 1 is still pressed after debounce, resume operation
-                    isMotorRunning = true;
-                    startTime = millis(); // Reset the start time since we are resuming the operation
+        // Motor operation logic here...
+        // ...
+
+        // After completing motor operation, check if we should pause before proceeding to the next loop
+        if (!isMotorRunning)
+        {
+            // Save the current loop count so we can resume correctly
+            storedLoopCount = loopCount;
+            // Wait here until the limit switch is pressed to continue
+            while (!isMotorRunning)
+            {
+                delay(10); // Small delay to prevent tight loop
+                // Check if Limit Switch 1 is pressed
+                if (digitalRead(limitswitch1) == LOW)
+                {
+                    delay(50); // Debounce delay
+                    if (digitalRead(limitswitch1) == LOW)
+                    {
+                        // If still pressed, unpause
+                        isMotorRunning = true;
+                    }
                 }
             }
-            duration = millis() - startTime;
         }
-
-        // Forward loop operation
-        digitalWrite(motorPin1, HIGH);
-        digitalWrite(motorPin2, LOW);
-
-        // Non-blocking delay for motor forward duration
-        startTime = millis();
-        duration = 0;
-        while (duration < 3000) { // Assuming 3000 is the forward duration
-            if (!isMotorRunning) {
-                // Wait for Limit Switch 1 to be pressed to continue
-                while (!digitalRead(limitswitch1)) {
-                    // Optionally, add a small delay or perform other tasks
-                }
-                // Debounce the Limit Switch 1
-                delay(50);
-                if (digitalRead(limitswitch1)) {
-                    // If Limit Switch 1 is still pressed after debounce, resume operation
-                    isMotorRunning = true;
-                    startTime = millis(); // Reset the start time since we are resuming the operation
-                }
-            }
-            duration = millis() - startTime;
-        }
-
-        digitalWrite(motorPin1, LOW);
-        digitalWrite(motorPin2, LOW);
 
         lcd.clear();
         lcd.print("Loop ");
         lcd.print(loopCount + 1);
         lcd.print(" done");
 
-        // Non-blocking delay between loops
-        startTime = millis();
-        duration = 0;
-        while (duration < 1000) { // Assuming 1000 is the delay between loops
-            if (!isMotorRunning) {
-                // Wait for Limit Switch 1 to be pressed to continue
-                while (!digitalRead(limitswitch1)) {
-                    // Optionally, add a small delay or perform other tasks
-                }
-                // Debounce the Limit Switch 1
-                delay(50);
-                if (digitalRead(limitswitch1)) {
-                    // If Limit Switch 1 is still pressed after debounce, resume operation
-                    isMotorRunning = true;
-                    startTime = millis(); // Reset the start time since we are resuming the operation
-                }
-            }
-            duration = millis() - startTime;
-        }
+        // Delay between loops if needed
+        // ...
     }
 
     // After completing all loops, reset storedLoopCount

@@ -100,19 +100,17 @@ void restartMotorSequenceHandler()
 
 void limitSwitch1InterruptHandler()
 {
-    static unsigned long lastInterruptTime = 0;
-    unsigned long interruptTime = millis();
-
-    // If interrupts come faster than 200ms, assume it's a bounce and ignore
-    if (interruptTime - lastInterruptTime > 200)
+    delay(100); // Simple debouncing
+    if (digitalRead(limitswitch1) == LOW)
     {
         isMotorRunning = !isMotorRunning;
         pause = !pause;
         digitalWrite(relayPin, HIGH);
         digitalWrite(motorPin1, LOW);
         // digitalWrite(motorPin2, LOW);
+
+        // lcd.print("big motor off");
     }
-    lastInterruptTime = interruptTime;
 }
 
 void checkMotorDirection()
@@ -194,16 +192,20 @@ void loop()
 {
     stopOrResetIfNeeded();
 
-    if (!nValueSet){
+    if (!nValueSet)
+    {
         fetchNValue();
         lcd.clear();
         lcd.print("limit switch 1");
     }
-    
+
     // Check if the motor should be running or paused
-    if (isMotorRunning) {
+    if (isMotorRunning)
+    {
         startMotorSequence();
-    } else {
+    }
+    else
+    {
         // If the motor is paused, you can add logic here to handle the pause state
     }
     // Check if it needs to restart the motor sequence
@@ -213,7 +215,6 @@ void loop()
         startMotorSequence();
     }
 }
-
 
 void motorReverseUntilLimitSwitch2()
 {
@@ -380,48 +381,57 @@ void startMotorSequence()
     motorActive = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
-    for (loopCount; motorActive && loopCount < 4; loopCount++) {
-        // Check if the motor is paused before each operation
-        while (!isMotorRunning) {
-            delay(10); // Wait for a short period to prevent tightly locked loop
-            stopOrResetIfNeeded(); // Check if the system should be stopped or reset
+    for (loopCount; motorActive && loopCount < 4; loopCount++)
+    {
+        // Check if the motor is still running after each step
+        while (!isMotorRunning)
+        {
+            delay(10);             // Wait for a short period to prevent tightly locked loop
+            stopOrResetIfNeeded(); // <--- HERE
         }
 
-        // Perform motor operations only if isMotorRunning is true
-        if (isMotorRunning) {
+        // Check again if motorActive is still true, since it might be changed by "stopEverything()"
+        if (motorActive)
+        {
             digitalWrite(relayPin, LOW);
             lcd.clear();
             lcd.print("Motor is ON ");
             lcd.print(loopCount + 1);
 
+            while (!isMotorRunning)
+            {
+                delay(10);             // Wait for a short period to prevent tightly locked loop
+                stopOrResetIfNeeded(); // <--- HERE
+            }
+
             // Forward loop operation
             delay(motorDelayTime);
-
-            // Check if the motor is paused after delay
-            while (!isMotorRunning) {
-                delay(10); // Wait for a short period to prevent tightly locked loop
-                stopOrResetIfNeeded(); // Check if the system should be stopped or reset
+            while (!isMotorRunning)
+            {
+                delay(10);             // Wait for a short period to prevent tightly locked loop
+                stopOrResetIfNeeded(); // <--- HERE
             }
-
-            // Continue with motor operations only if isMotorRunning is true
-            if (isMotorRunning) {
-                digitalWrite(motorPin1, HIGH);
-                digitalWrite(motorPin2, LOW);
-                delay(3000); // Replace with actual motor operation time
-                digitalWrite(motorPin1, LOW);
-                digitalWrite(motorPin2, LOW);
-            }
+            digitalWrite(motorPin1, HIGH);
+            digitalWrite(motorPin2, LOW);
+            delay(3000);
+            digitalWrite(motorPin1, LOW);
+            digitalWrite(motorPin2, LOW);
 
             lcd.clear();
             lcd.print("Loop ");
             lcd.print(loopCount + 1);
             lcd.print(" done");
-
-            // Check if the motor is paused after loop operation
-            while (!isMotorRunning) {
-                delay(10); // Wait for a short period to prevent tightly locked loop
-                stopOrResetIfNeeded(); // Check if the system should be stopped or reset
+            if (!isMotorRunning)
+            {
+                loopCount = loopCount - 1;
             }
+        }
+
+        // After each operation, check if the motor is still running
+        while (!isMotorRunning)
+        {
+            delay(10);               // Wait for a short period to prevent tightly locked loop
+            checkForImmediateStop(); // Check for immediate stop request
         }
     }
 

@@ -386,7 +386,6 @@ void checkForImmediateStop()
 void startMotorSequence()
 {
     motorActive = true;
-    isMotorRunning = true;
     int motorDelayTime = N * 1000 / 1; // Calculate delay time (t) in milliseconds.
 
     for (loopCount; isMotorRunning && loopCount < 4;)
@@ -395,6 +394,8 @@ void startMotorSequence()
         if (pause)
         {
             // If paused, just wait here and do not increment loopCount or perform any actions
+            lcd.clear();
+            lcd.print("Loop paused ");
             delay(10); // Wait for a short period
             continue;  // Skip the rest of the loop and check the condition again
         }

@@ -91,8 +91,18 @@ void setup()
 
 void limitSwitch1InterruptHandler()
 {
-    isPaused = !isPaused; // Toggle the pause state
-    if (isPaused)
+    if (isMotorRunning)
+    {
+        // If the motor is running, toggle the pause state.
+        isPaused = !isPaused;
+    }
+    else
+    {
+        // If the motor is not running, start the motor sequence instead.
+        isMotorRunning = true;
+        // Additionally, you may want to reset the pause state to false when starting.
+        isPaused = false;
+    }
     {
         // If we're pausing, stop the motor
         digitalWrite(relayPin, HIGH);
@@ -183,7 +193,7 @@ void loop()
         lcd.clear();
         lcd.print("Loop paused");
     }
-    else
+    if (isMotorRunning && !isPaused)
     {
         if (!nValueSet)
         {
@@ -193,13 +203,8 @@ void loop()
         }
         else
         {
-            // Check if Limit Switch 1 is pressed to start the motor sequence
-
-            if (digitalRead(limitswitch1) == LOW)
-            {
-                isMotorRunning = true;
-                startMotorSequence();
-            }
+            // Start the motor sequence
+            startMotorSequence();
         }
     }
 

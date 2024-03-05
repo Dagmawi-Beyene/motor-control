@@ -103,10 +103,13 @@ void limitSwitch1InterruptHandler()
         // Additionally, you may want to reset the pause state to false when starting.
         isPaused = false;
     }
+    if (digitalRead(limitswitch1) == LOW)
     {
-        // If we're pausing, stop the motor
-        digitalWrite(relayPin, HIGH);
-        digitalWrite(motorPin1, LOW);
+        {
+            // If we're pausing, stop the motor
+            digitalWrite(relayPin, HIGH);
+            digitalWrite(motorPin1, LOW);
+        }
     }
 }
 

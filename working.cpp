@@ -106,6 +106,7 @@ void limitSwitch1InterruptHandler()
         {
             static unsigned long last_interrupt_time = 0;
             unsigned long interrupt_time = millis();
+
             // Simple debounce check
             if (interrupt_time - last_interrupt_time > 50)
             {
@@ -113,9 +114,7 @@ void limitSwitch1InterruptHandler()
             }
             last_interrupt_time = interrupt_time;
         }
-
         // delay(100); // Simple debouncing
-
         isMotorRunning = !isMotorRunning;
         digitalWrite(relayPin, HIGH);
         digitalWrite(motorPin1, LOW);
@@ -217,7 +216,6 @@ void loop()
         }
         else if (nValueSet)
         {
-
             if (digitalRead(limitswitch1) == LOW)
             {
                 isMotorRunning = true;
@@ -225,7 +223,6 @@ void loop()
             }
         }
     }
-
     // All main logic is handled within sub-functions
 }
 
@@ -396,14 +393,13 @@ void startMotorSequence()
 
     for (loopCount; isMotorRunning && loopCount < 4;)
     {
-
         if (!pause)
         {
             // Check if the motor is still running after each step
             while (!isMotorRunning)
             {
-                delay(10);             // Wait for a short period to prevent tightly locked loop
-                stopOrResetIfNeeded(); // <--- HERE
+                delay(10); // Wait for a short period to prevent tightly locked loop
+                stopOrResetIfNeeded();
             }
 
             // Check again if motorActive is still true, since it might be changed by "stopEverything()"
@@ -416,8 +412,8 @@ void startMotorSequence()
 
                 while (!isMotorRunning)
                 {
-                    delay(10);             // Wait for a short period to prevent tightly locked loop
-                    stopOrResetIfNeeded(); // <--- HERE
+                    delay(10); // Wait for a short period to prevent tightly locked loop
+                    stopOrResetIfNeeded();
                 }
 
                 while (pause)
@@ -425,12 +421,14 @@ void startMotorSequence()
                     loopCount = loopCount - 1;
                     continue;
                 }
+
                 // Forward loop operation
                 delay(motorDelayTime);
+
                 while (!isMotorRunning)
                 {
-                    delay(10);             // Wait for a short period to prevent tightly locked loop
-                    stopOrResetIfNeeded(); // <--- HERE
+                    delay(10); // Wait for a short period to prevent tightly locked loop
+                    stopOrResetIfNeeded();
                 }
 
                 digitalWrite(motorPin1, HIGH);
@@ -449,10 +447,11 @@ void startMotorSequence()
             // After each operation, check if the motor is still running
             while (!isMotorRunning)
             {
-                delay(10);               // Wait for a short period to prevent tightly locked loop
+                delay(10); // Wait for a short period to prevent tightly locked loop
                 checkForImmediateStop(); // Check for immediate stop request
             }
         }
+    }
         // After 4 loops, go reverse until it touches Limit Switch 2
         if (motorActive && loopCount == 4)
         {
@@ -493,7 +492,6 @@ void startMotorSequence()
             }
             resetArduino();
         }
-    }
 }
 
 void stopEverything()
